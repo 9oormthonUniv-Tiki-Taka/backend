@@ -1,11 +1,15 @@
 package com.tikitaka.api.repository;
 
 import com.tikitaka.api.domain.question.Question;
+import com.tikitaka.api.domain.question.QuestionStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
 
@@ -14,5 +18,19 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 
     @Query("SELECT q.lecture.lectureId, COUNT(q) FROM Question q WHERE q.lecture.lectureId IN :lectureIds GROUP BY q.lecture.lectureId")
     List<Object[]> countQuestionsByLectureIds(@Param("lectureIds") List<Long> lectureIds);
+
+    @Query("""
+        SELECT q FROM Question q
+        WHERE q.lecture.lectureId = :lectureId
+        AND (:status IS NULL OR q.status = :status)
+        """)
+    Page<Question> findByLectureIdAndStatus(
+            @Param("lectureId") Long lectureId,
+            @Param("status") QuestionStatus status,
+            Pageable pageable
+    );
+
+    @Query("SELECT q FROM Question q JOIN FETCH q.user WHERE q.questionId = :questionId AND q.lecture.lectureId = :lectureId")
+    Optional<Question> findByLectureIdAndQuestionIdWithUser(@Param("lectureId") Long lectureId, @Param("questionId") Long questionId);
 }
 

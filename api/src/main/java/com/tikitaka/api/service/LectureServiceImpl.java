@@ -1,4 +1,4 @@
-package com.tikitaka.api.service.impl;
+package com.tikitaka.api.service;
 
 import com.tikitaka.api.domain.comment.Comment;
 import com.tikitaka.api.domain.lecture.Lecture;
