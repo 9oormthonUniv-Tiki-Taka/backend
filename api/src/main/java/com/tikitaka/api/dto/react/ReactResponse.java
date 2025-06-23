@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class ReactResponse {
     private String targetType; // like | wonder | medal
-    private String targetId;
-    private Integer reactCount;
+    private Long targetId;
+    private Long reactCount;
 }
 

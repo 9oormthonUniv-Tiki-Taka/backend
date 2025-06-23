@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class ReactRequest {
     private String targetType; // like | wonder | medal
-    private String targetId;
+    private Long targetId;
 }
 

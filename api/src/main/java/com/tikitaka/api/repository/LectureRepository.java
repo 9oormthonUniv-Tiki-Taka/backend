@@ -8,7 +8,10 @@ import org.springframework.data.repository.query.Param;
 import java.time.DayOfWeek;
 import java.util.List;
 
+import java.util.List;
+
 public interface LectureRepository extends JpaRepository<Lecture, Long> {
+    List<Lecture> findByNameContainingIgnoreCase(String name);
 
     @Query("SELECT ul.lecture FROM UserLecture ul WHERE ul.user.userId = :userId")
     List<Lecture> findLecturesByUserId(@Param("userId") Long userId);

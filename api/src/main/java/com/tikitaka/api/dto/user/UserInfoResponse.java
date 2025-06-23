@@ -10,7 +10,7 @@ public class UserInfoResponse {
     public static class UserDto {
         private String email;
         private String studentId;
-        private Integer point;
+        private Long point;
         private String name;
         private String avatar;
     }
