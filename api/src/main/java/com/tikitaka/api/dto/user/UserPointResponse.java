@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class UserPointResponse {
-    private Integer point;
+    private Long point;
     private List<PointDto> points;
 
     @Data

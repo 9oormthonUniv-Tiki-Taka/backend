@@ -4,5 +4,5 @@ import com.tikitaka.api.dto.search.SearchRequest;
 import com.tikitaka.api.dto.search.SearchResponse;
 
 public interface SearchService {
-    SearchResponse search(SearchRequest request);
+    SearchResponse search(Long userId, SearchRequest request);
 }

@@ -20,6 +20,7 @@ public class Lecture extends BaseTimeEntity {
     private Long lectureId;
 
     private String name;
+    private String room;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professor_id")
