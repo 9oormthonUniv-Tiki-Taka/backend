@@ -7,7 +7,6 @@ import com.tikitaka.api.domain.lecture.Lecture;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 @Entity
 @Getter
 @NoArgsConstructor
@@ -31,4 +30,8 @@ public class Question extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     private QuestionStatus status;
+
+    public void updateStatus(QuestionStatus status) {
+        this.status = status;
+    }
 }
