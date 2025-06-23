@@ -1,5 +1,7 @@
 package com.tikitaka.api.service;
 
+import com.tikitaka.api.domain.react.ReactType;
+
 public interface ReactService {
-    void reactToContent(Long userId, Long contentId, String reactionType);
+    int reactToContent(Long userId, Long targetId, ReactType reactType);
 }
