@@ -2,7 +2,6 @@ package com.tikitaka.api.domain.report;
 
 import com.tikitaka.api.domain.common.BaseTimeEntity;
 import com.tikitaka.api.domain.user.User;
-import com.tikitaka.api.domain.question.Question;
 
 import jakarta.persistence.*;
 import lombok.*;
