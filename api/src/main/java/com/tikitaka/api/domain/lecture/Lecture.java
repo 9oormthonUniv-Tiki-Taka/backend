@@ -1,5 +1,8 @@
 package com.tikitaka.api.domain.lecture;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+
 import com.tikitaka.api.domain.common.BaseTimeEntity;
 import com.tikitaka.api.domain.user.User;
 
@@ -21,4 +24,7 @@ public class Lecture extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professor_id")
     private User professor;
+
+    private DayOfWeek dayOfWeek;
+    private LocalTime startTime;
 }
