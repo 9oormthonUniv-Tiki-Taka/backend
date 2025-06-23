@@ -1,13 +1,13 @@
-package com.podo.tiki_taka;
+package com.tikitaka.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TikiTakaApplication {
+public class ApiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TikiTakaApplication.class, args);
+		SpringApplication.run(ApiApplication.class, args);
 	}
 
 }

@@ -1,10 +1,10 @@
-package com.podo.tiki_taka;
+package com.tikitaka.api;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class TikiTakaApplicationTests {
+class ApiApplicationTests {
 
 	@Test
 	void contextLoads() {
