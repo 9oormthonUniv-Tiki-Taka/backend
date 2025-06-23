@@ -18,7 +18,7 @@ public class Lecture extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long lectureId;
-
+    private String room;
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
