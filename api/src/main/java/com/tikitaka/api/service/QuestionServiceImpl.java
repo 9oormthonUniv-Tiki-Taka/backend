@@ -211,7 +211,6 @@ public class QuestionServiceImpl implements QuestionService {
         // 저장
         questionRepository.saveAll(questions);
 
-        // 응답 DTO 변환
         List<QuestionBatchResponse.QuestionBatchDto> batchDtos = questions.stream().map(q -> {
             QuestionBatchResponse.QuestionBatchDto dto = new QuestionBatchResponse.QuestionBatchDto();
             dto.setId(String.valueOf(q.getQuestionId()));
