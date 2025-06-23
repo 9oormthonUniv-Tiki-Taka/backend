@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class ReportRequest {
     private String targetType;
-    private String targetId;
+    private Long targetId;
     private String reasonId;
     private String reason;
 }

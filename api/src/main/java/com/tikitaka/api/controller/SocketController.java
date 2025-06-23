@@ -20,7 +20,7 @@ public class SocketController {
     private final SimpMessagingTemplate messagingTemplate;
     private final SocketService socketService;
 
-    @MessageMapping("") // 클라이언트 전송: /api/lectures/{id}/live
+    @MessageMapping("")
     public void handleSocket(@DestinationVariable Long lectureId,
                              @Payload LiveSocketRequest message,
                              @Header("userId") Long userId) {
