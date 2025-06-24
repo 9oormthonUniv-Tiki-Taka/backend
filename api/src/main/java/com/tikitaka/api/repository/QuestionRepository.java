@@ -12,15 +12,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
     List<Question> findByContentContainingIgnoreCase(String content);
-    List<Question> findByUserId(Long userId);
+    Page<Question> findByUserId(Long userId, Pageable pageable);
     Long countByLecture(Lecture lecture);
-
-    int countByLecture(Lecture lecture);
 
     List<Question> findByLecture_LectureIdOrderByCreatedAtDesc(Long lectureId);
 
