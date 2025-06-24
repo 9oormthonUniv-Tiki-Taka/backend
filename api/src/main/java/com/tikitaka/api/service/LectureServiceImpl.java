@@ -41,7 +41,6 @@ public class LectureServiceImpl implements LectureService {
                 .filter(lecture -> lecture.getDayOfWeek() == today)
                 .collect(Collectors.toList());
 
-        // 질문 수 정렬 필요하면 별도 처리
         if ("many".equals(sort.toLowerCase())) {
             allLectures = allLectures.stream()
                     .sorted((l1, l2) -> Integer.compare(
