@@ -17,13 +17,15 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '21'
-          distribution: 'temurin' # 필요 시 zulu, adopt 등 변경 가능
+          distribution: 'temurin'
 
       - name: 🛠️ Grant execute permission for Gradle
         run: chmod +x ./gradlew
+        working-directory: api
 
       - name: 🏗️ Build with Gradle
         run: ./gradlew clean build
+        working-directory: api
 
       - name: 🔐 Create SSH private key
         run: |
@@ -33,7 +35,7 @@ jobs:
       - name: 🚀 SCP JAR to EC2
         run: |
           scp -i key.pem -o StrictHostKeyChecking=no \
-            ./build/libs/*.jar \
+            api/build/libs/*.jar \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/app.jar
 
       - name: 🧨 SSH into EC2 and restart application
