@@ -42,7 +42,7 @@ public class UserController {
                                                        @RequestParam(defaultValue = "all") String type,
                                                        @RequestParam(defaultValue = "0") int page,
                                                        @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("created_at").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         UserPointResponse response = userService.getMyPoints(userId, type, pageable);
         return ResponseEntity.ok(response);
     }
@@ -55,7 +55,7 @@ public class UserController {
     public ResponseEntity<UserQuestionResponse> getMyQuestions(@Header("userId") Long userId,
                                                                @RequestParam(defaultValue = "0") int page,
                                                                @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("created_at").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         UserQuestionResponse response = userService.getMyQuestions(userId, pageable);
         return ResponseEntity.ok(response);
     }
@@ -69,7 +69,7 @@ public class UserController {
                                                          @RequestParam(defaultValue = "like") String type,
                                                          @RequestParam(defaultValue = "0") int page,
                                                          @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("created_at").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         UserReactResponse response = userService.getMyReacts(userId, type, pageable);
         return ResponseEntity.ok(response);
     }
@@ -82,7 +82,7 @@ public class UserController {
     public ResponseEntity<UserReportResponse> getMyReports(@Header("userId") Long userId,
                                                            @RequestParam(defaultValue = "0") int page,
                                                            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("created_at").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         UserReportResponse response = userService.getMyReports(userId, pageable);
         return ResponseEntity.ok(response);
     }

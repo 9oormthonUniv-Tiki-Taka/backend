@@ -16,8 +16,10 @@ import com.tikitaka.api.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -142,21 +144,29 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserReportResponse getMyReports(Long userId, Pageable pageable) {
-        Page<Report> reports = reportRepository.findByReporterId(userId, pageable);
+        // 정렬 조건이 있으면 무시하고 createdAt 내림차순 정렬로 재생성
+        Pageable fixedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        Page<Report> reports = reportRepository.findByReporterId(userId, fixedPageable);
 
         Page<UserReportResponse.ReportDto> dtos = reports.map(r -> {
-                    UserReportResponse.ReportDto dto = new UserReportResponse.ReportDto();
-                    dto.setId(r.getReportId().toString());
-                    dto.setType(r.getTargetType().toString());
-                    dto.setStatus(r.getStatus().name().toLowerCase());
-                    dto.setReason(r.getReason());
-                    dto.setCreatedAt(r.getCreatedAt());
-                    return dto;
-                });
+            UserReportResponse.ReportDto dto = new UserReportResponse.ReportDto();
+            dto.setId(r.getReportId().toString());
+            dto.setType(r.getTargetType().toString());
+            dto.setStatus(r.getStatus().name().toLowerCase());
+            dto.setReason(r.getReason());
+            dto.setCreatedAt(r.getCreatedAt());
+            return dto;
+        });
 
         UserReportResponse response = new UserReportResponse();
         response.setReport(dtos);
         return response;
     }
+
 
 }
