@@ -1,0 +1,27 @@
+package com.tikitaka.api.jwt;
+
+import com.tikitaka.api.domain.user.User;
+import com.tikitaka.api.repository.UserRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    private final UserRepository userRepository;
+
+    // 생성자 주입
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    // 이메일로 유저를 찾아서 UserDetails 형태로 반환
+    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+        User user = userRepository.findById(Long.valueOf(userId))
+            .orElseThrow(() -> new UsernameNotFoundException("해당 이메일의 유저를 찾을 수 없습니다: " + userId));
+
+        return new CustomUserDetails(user);
+    }
+}
