@@ -16,9 +16,8 @@ import com.tikitaka.api.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -53,38 +52,37 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserPointResponse getMyPoints(Long userId, String type) {
+    public UserPointResponse getMyPoints(Long userId, String type, Pageable pageable) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
         switch (type) {
             case "earn" -> {
-                List<PointTransaction> transactions = pointTransactionRepository
-                        .findByUserIdAndTypeOrderByCreatedAtDesc(userId, PointType.EARN);
+                Page<PointTransaction> transactions = pointTransactionRepository
+                        .findByUserIdAndTypeOrderByCreatedAtDesc(userId, PointType.EARN, pageable);
                 return toUserPointResponse(user, transactions);
             }
             case "spend" -> {
-                List<PointTransaction> transactions = pointTransactionRepository
-                        .findByUserIdAndTypeOrderByCreatedAtDesc(userId, PointType.SPEND);
+                Page<PointTransaction> transactions = pointTransactionRepository
+                        .findByUserIdAndTypeOrderByCreatedAtDesc(userId, PointType.SPEND, pageable);
                 return toUserPointResponse(user, transactions);
             }
             case "all" -> {
-                List<PointTransaction> transactions = pointTransactionRepository
-                        .findByUserIdOrderByCreatedAtDesc(userId);
+                Page<PointTransaction> transactions = pointTransactionRepository
+                        .findByUserIdOrderByCreatedAtDesc(userId, pageable);
                 return toUserPointResponse(user, transactions);
             }
         }
-
         return null;
     }
 
-    public UserPointResponse toUserPointResponse(User user, List<PointTransaction> transactions) {
+    public UserPointResponse toUserPointResponse(User user, Page<PointTransaction> transactions) {
         UserPointResponse response = new UserPointResponse();
         Long earn = pointTransactionRepository.countByUserIdAndType(user.getUserId(), PointType.EARN);
         Long spend = pointTransactionRepository.countByUserIdAndType(user.getUserId(), PointType.SPEND);
         response.setPoint(earn - spend);
 
-        List<UserPointResponse.PointDto> pointDtos = transactions.stream().map(pt -> {
+        Page<UserPointResponse.PointDto> pointDtos = transactions.map(pt -> {
             UserPointResponse.PointDto dto = new UserPointResponse.PointDto();
             dto.setId(String.valueOf(pt.getPointId()));
             dto.setAmount(pt.getAmount());
@@ -92,18 +90,17 @@ public class UserServiceImpl implements UserService {
             dto.setReason(pt.getReason());
             dto.setCreatedAt(pt.getCreatedAt());
             return dto;
-        }).collect(Collectors.toList());
+        });
 
         response.setPoints(pointDtos);
         return response;
     }
 
     @Override
-    public UserQuestionResponse getMyQuestions(Long userId) {
-        List<Question> questions = questionRepository.findByUserId(userId);
+    public UserQuestionResponse getMyQuestions(Long userId, Pageable pageable) {
+        Page<Question> questions = questionRepository.findByUserId(userId, pageable);
 
-        List<UserQuestionResponse.QuestionDto> dtos = questions.stream()
-                .map(q -> {
+        Page<UserQuestionResponse.QuestionDto> dtos = questions.map(q -> {
                     UserQuestionResponse.QuestionDto dto = new UserQuestionResponse.QuestionDto();
                     dto.setId(q.getQuestionId().toString());
                     dto.setLectureName(q.getLecture().getName());
@@ -111,7 +108,7 @@ public class UserServiceImpl implements UserService {
                     dto.setStatus(q.getStatus().toString());
                     dto.setCreatedAt(q.getCreatedAt());
                     return dto;
-                }).toList();
+                });
 
         UserQuestionResponse response = new UserQuestionResponse();
         response.setQuestions(dtos);
@@ -120,36 +117,34 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserReactResponse getMyReacts(Long userId, String type) {
-        List<React> reacts;
+    public UserReactResponse getMyReacts(Long userId, String type, Pageable pageable) {
+        Page<React> reacts;
 
         if (type == null || type.equals("all")) {
-            reacts = reactRepository.findByUserId(userId);
+            reacts = reactRepository.findByUserId(userId, pageable);
         } else {
             ReactType reactType = ReactType.valueOf(type.toUpperCase());
-            reacts = reactRepository.findByUserIdAndType(userId, reactType);
+            reacts = reactRepository.findByUserIdAndType(userId, reactType, pageable);
         }
 
-        List<UserReactResponse.ReactDto> dtos = reacts.stream()
-                .map(r -> {
+        Page<UserReactResponse.ReactDto> dtos = reacts.map(r -> {
                     UserReactResponse.ReactDto dto = new UserReactResponse.ReactDto();
                     dto.setId(r.getReactId().toString());
                     dto.setType(r.getReactType().name().toLowerCase());
                     dto.setLectureName(r.getTarget().getLecture().getName());
                     dto.setCreatedAt(r.getCreatedAt());
                     return dto;
-                }).toList();
+                });
         UserReactResponse response = new UserReactResponse();
         response.setReacts(dtos);
         return response;
     }
 
     @Override
-    public UserReportResponse getMyReports(Long userId) {
-        List<Report> reports = reportRepository.findByReporterId(userId);
+    public UserReportResponse getMyReports(Long userId, Pageable pageable) {
+        Page<Report> reports = reportRepository.findByReporterId(userId, pageable);
 
-        List<UserReportResponse.ReportDto> dtos = reports.stream()
-                .map(r -> {
+        Page<UserReportResponse.ReportDto> dtos = reports.map(r -> {
                     UserReportResponse.ReportDto dto = new UserReportResponse.ReportDto();
                     dto.setId(r.getReportId().toString());
                     dto.setType(r.getTargetType().toString());
@@ -157,7 +152,7 @@ public class UserServiceImpl implements UserService {
                     dto.setReason(r.getReason());
                     dto.setCreatedAt(r.getCreatedAt());
                     return dto;
-                }).toList();
+                });
 
         UserReportResponse response = new UserReportResponse();
         response.setReport(dtos);

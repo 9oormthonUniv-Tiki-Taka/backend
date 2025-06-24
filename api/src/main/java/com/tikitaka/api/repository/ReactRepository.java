@@ -4,14 +4,14 @@ import com.tikitaka.api.domain.question.Question;
 import com.tikitaka.api.domain.react.React;
 import com.tikitaka.api.domain.react.ReactType;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReactRepository extends JpaRepository<React, Long>{
     int countByTargetAndReactType(Question target, ReactType reactType);
 
-    List<React> findByUserId(Long userId);
+    Page<React> findByUserId(Long userId, Pageable pageable);
 
-    List<React> findByUserIdAndType(Long userId, ReactType reactType);
+    Page<React> findByUserIdAndType(Long userId, ReactType reactType, Pageable pageable);
 }

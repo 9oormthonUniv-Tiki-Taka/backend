@@ -2,12 +2,13 @@ package com.tikitaka.api.dto.user;
 
 import lombok.Data;
 import java.time.LocalDateTime;
-import java.util.List;
+
+import org.springframework.data.domain.Page;
 
 @Data
 public class UserPointResponse {
     private Long point;
-    private List<PointDto> points;
+    private Page<PointDto> points;
 
     @Data
     public static class PointDto {

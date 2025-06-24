@@ -2,11 +2,12 @@ package com.tikitaka.api.dto.user;
 
 import lombok.Data;
 import java.time.LocalDateTime;
-import java.util.List;
+
+import org.springframework.data.domain.Page;
 
 @Data
 public class UserReportResponse {
-    private List<ReportDto> report;
+    private Page<ReportDto> report;
 
     @Data
     public static class ReportDto {
