@@ -1,0 +1,51 @@
+name: Build and Deploy to EC2
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ✅ Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: ✅ Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: 🛠️ Grant execute permission for Gradle
+        run: chmod +x ./gradlew
+        working-directory: api
+
+      - name: 🏗️ Build with Gradle
+        run: ./gradlew clean build
+        working-directory: api
+
+      - name: 🔐 Create SSH private key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > key.pem
+          chmod 400 key.pem
+
+      - name: 🚀 SCP JAR to EC2
+        run: |
+          scp -i key.pem -o StrictHostKeyChecking=no \
+            api/build/libs/*.jar \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/app.jar
+
+      - name: 🧨 SSH into EC2 and restart application
+        run: |
+          ssh -i key.pem -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+              echo "🛑 Killing existing Java process (if any)..."
+              pkill -f 'java' || true
+
+              echo "🚀 Starting new app..."
+              nohup java -jar /home/${{ secrets.SSH_USER }}/app.jar > app.log 2>&1 &
+              echo "✅ Deployed!"
+          EOF
