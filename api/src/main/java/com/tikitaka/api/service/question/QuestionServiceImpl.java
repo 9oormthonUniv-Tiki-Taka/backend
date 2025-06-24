@@ -1,4 +1,4 @@
-package com.tikitaka.api.service;
+package com.tikitaka.api.service.question;
 
 import com.tikitaka.api.domain.comment.Comment;
 import com.tikitaka.api.domain.question.Question;
@@ -11,6 +11,7 @@ import com.tikitaka.api.repository.CommentRepository;
 import com.tikitaka.api.repository.QuestionRepository;
 import com.tikitaka.api.repository.ReactRepository;
 import com.tikitaka.api.repository.UserRepository;
+import com.tikitaka.api.service.ai.GptService;
 import jakarta.persistence.EntityNotFoundException;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,8 @@ public class QuestionServiceImpl implements QuestionService {
     private final CommentRepository commentRepository;
     private final ReactRepository reactRepository;
     private final UserRepository userRepository;
+    private final GptService gptService;
+
 
 
     // --- 질문 목록 조회 (페이징, 필터, 정렬 포함) ---
@@ -177,8 +180,8 @@ public class QuestionServiceImpl implements QuestionService {
             throw new IllegalArgumentException("Question does not belong to lecture");
         }
 
-        // 지금은 임시 더미 응답 반환
-        String aiAnswerContent = "이 질문에 대한 AI 답변입니다: " + question.getContent();
+        String prompt = question.getContent();
+        String aiAnswerContent = gptService.getGptAnswer(prompt);
 
         AiResponseDto response = new AiResponseDto();
         response.setContent(aiAnswerContent);
