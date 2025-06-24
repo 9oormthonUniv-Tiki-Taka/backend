@@ -2,6 +2,9 @@ package com.tikitaka.api.repository;
 
 import com.tikitaka.api.domain.lecture.Lecture;
 import com.tikitaka.api.domain.question.Question;
+
+import java.util.List;
+
 import com.tikitaka.api.domain.question.QuestionStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +16,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
+    List<Question> findByContentContainingIgnoreCase(String content);
+    List<Question> findByUserId(Long userId);
+    Long countByLecture(Lecture lecture);
 
     int countByLecture(Lecture lecture);
 
