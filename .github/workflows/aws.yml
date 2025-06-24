@@ -25,6 +25,13 @@ jobs:
 
       - name: 🏗️ Build with Gradle
         run: ./gradlew clean build
+        env:
+          GMAIL_PASSWORD: ${{ secrets.GMAIL_PASSWORD }}
+          GMAIL_SMTP_HOST: ${{ secrets.GMAIL_SMTP_HOST }}
+          GMAIL_SMTP_PORT: ${{ secrets.GMAIL_SMTP_PORT }}
+          GMAIL_USERNAME: ${{ secrets.GMAIL_USERNAME }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         working-directory: api
 
       - name: 🔐 Create SSH private key
