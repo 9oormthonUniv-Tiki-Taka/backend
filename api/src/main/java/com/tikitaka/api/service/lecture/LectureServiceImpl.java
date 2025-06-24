@@ -1,4 +1,4 @@
-package com.tikitaka.api.service;
+package com.tikitaka.api.service.lecture;
 
 import com.tikitaka.api.domain.lecture.Lecture;
 import com.tikitaka.api.domain.react.ReactType;

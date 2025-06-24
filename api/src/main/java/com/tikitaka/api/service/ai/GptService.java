@@ -1,4 +1,4 @@
-package com.tikitaka.api.service;
+package com.tikitaka.api.service.ai;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Value;

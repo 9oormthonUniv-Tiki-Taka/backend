@@ -1,4 +1,4 @@
-package com.tikitaka.api.service;
+package com.tikitaka.api.service.question;
 
 import com.tikitaka.api.dto.question.AiResponseDto;
 import com.tikitaka.api.dto.question.QuestionDtos;

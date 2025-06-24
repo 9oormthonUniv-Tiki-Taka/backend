@@ -2,7 +2,7 @@ package com.tikitaka.api.controller;
 
 import com.tikitaka.api.domain.user.UserRole;
 import com.tikitaka.api.dto.question.*;
-import com.tikitaka.api.service.QuestionService;
+import com.tikitaka.api.service.question.QuestionService;
 
 import lombok.RequiredArgsConstructor;
 

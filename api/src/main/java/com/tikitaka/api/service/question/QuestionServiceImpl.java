@@ -1,4 +1,4 @@
-package com.tikitaka.api.service;
+package com.tikitaka.api.service.question;
 
 import com.tikitaka.api.domain.comment.Comment;
 import com.tikitaka.api.domain.question.Question;
@@ -11,6 +11,7 @@ import com.tikitaka.api.repository.CommentRepository;
 import com.tikitaka.api.repository.QuestionRepository;
 import com.tikitaka.api.repository.ReactRepository;
 import com.tikitaka.api.repository.UserRepository;
+import com.tikitaka.api.service.ai.GptService;
 import jakarta.persistence.EntityNotFoundException;
 
 import lombok.RequiredArgsConstructor;

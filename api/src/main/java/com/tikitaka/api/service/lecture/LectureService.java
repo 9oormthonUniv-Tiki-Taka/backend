@@ -1,4 +1,4 @@
-package com.tikitaka.api.service;
+package com.tikitaka.api.service.lecture;
 
 import com.tikitaka.api.domain.user.User;
 import com.tikitaka.api.dto.lecture.LectureListResponse;

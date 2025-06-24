@@ -3,7 +3,7 @@ package com.tikitaka.api.controller;
 import com.tikitaka.api.domain.user.User;
 import com.tikitaka.api.dto.lecture.LectureListResponse;
 import com.tikitaka.api.dto.question.QuestionDtos.QuestionDetailDto;
-import com.tikitaka.api.service.LectureService;
+import com.tikitaka.api.service.lecture.LectureService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
