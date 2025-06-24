@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
 import com.tikitaka.api.oauth.CustomOAuth2SuccessHandler;
 import com.tikitaka.api.oauth.CustomOAuth2UserService;
@@ -27,17 +28,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // CSRF 비활성화 (H2 Console은 POST 요청 사용)
-            .headers(headers -> headers.frameOptions().sameOrigin()) // H2 Console은 iframe 필요
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**", "/oauth2/**", "/login/**", "/h2-console/**").permitAll()
-                .anyRequest().permitAll() 
-            )
-            .oauth2Login(oauth -> oauth
-            .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
-            .successHandler(oAuth2SuccessHandler)
-            .failureHandler(oAuth2FailureHandler)
-            ).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);;
+                .csrf(csrf -> csrf.disable()) // CSRF 비활성화 (H2 Console은 POST 요청 사용)
+                .headers(headers ->
+                        headers
+                                .addHeaderWriter(new StaticHeadersWriter("X-Frame-Options", "SAMEORIGIN"))
+                )
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/**", "/oauth2/**", "/login/**", "/h2-console/**").permitAll()
+                        .anyRequest().permitAll()
+                )
+                .oauth2Login(oauth -> oauth
+                        .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler)
+                        .failureHandler(oAuth2FailureHandler)
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -47,4 +52,6 @@ public class SecurityConfig {
             throws Exception {
         return configuration.getAuthenticationManager();
     }
+}
+
 
