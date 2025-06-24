@@ -10,12 +10,6 @@ import com.tikitaka.api.dto.question.*;
 import com.tikitaka.api.repository.CommentRepository;
 import com.tikitaka.api.repository.QuestionRepository;
 import com.tikitaka.api.repository.ReactRepository;
-import com.tikitaka.api.dto.question.QuestionBatchRequest;
-import com.tikitaka.api.dto.question.QuestionBatchResponse;
-import com.tikitaka.api.dto.question.QuestionBatchDto;
-
-
-
 import com.tikitaka.api.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 
@@ -62,7 +56,7 @@ public class QuestionServiceImpl implements QuestionService {
 
         List<QuestionListDto> dtoList = questionPage.stream().map(q -> {
             QuestionListDto dto = new QuestionListDto();
-            dto.setId(String.valueOf(q.getQuestionId()));
+            dto.setId(q.getQuestionId());
             dto.setContent(q.getContent());
             dto.setCreatedAt(q.getCreatedAt());
 
@@ -72,7 +66,7 @@ public class QuestionServiceImpl implements QuestionService {
                 dto.setStatus(null);
             }
 
-            long medalCount = reactRepository.countByTargetAndReactType(q, ReactType.MEDAL);
+            long medalCount = reactRepository.countByTargetAndType(q, ReactType.MEDAL);
             dto.setMedal(medalCount > 0 ? "gold" : null);
 
             return dto;
@@ -89,15 +83,15 @@ public class QuestionServiceImpl implements QuestionService {
 
         List<Comment> comments = commentRepository.findAllByQuestionOrderByCreatedAtAsc(question);
 
-        int likes = (int) reactRepository.countByTargetAndReactType(question, ReactType.LIKE);
-        int wonder = (int) reactRepository.countByTargetAndReactType(question, ReactType.WONDER);
-        int medalCount = (int) reactRepository.countByTargetAndReactType(question, ReactType.MEDAL);
+        Long likes = reactRepository.countByTargetAndType(question, ReactType.LIKE);
+        Long wonder = reactRepository.countByTargetAndType(question, ReactType.WONDER);
+        Long medalCount = reactRepository.countByTargetAndType(question, ReactType.MEDAL);
         String medal = medalCount > 0 ? "gold" : null;
 
-        String questionUserNickname = "티키 " + (question.getUser().getUserId() % 100 + 1);
+        String questionUserNickname = "티키 " + (question.getUser().getId() % 100 + 1);
 
         QuestionDtos.QuestionDetailDto dto = new QuestionDtos.QuestionDetailDto();
-        dto.setId(String.valueOf(question.getQuestionId()));
+        dto.setId(question.getQuestionId());
         dto.setContent(question.getContent());
         dto.setStatus(question.getStatus().name().toLowerCase());
 
@@ -109,10 +103,10 @@ public class QuestionServiceImpl implements QuestionService {
 
         List<QuestionDtos.AnswerDto> answerDtoList = comments.stream().map(c -> {
             QuestionDtos.AnswerDto answerDto = new QuestionDtos.AnswerDto();
-            answerDto.setId(String.valueOf(c.getCommentId()));
+            answerDto.setId(c.getCommentId());
 
             QuestionDtos.UserSimpleDto responderDto = new QuestionDtos.UserSimpleDto();
-            responderDto.setNickname("티키 " + (c.getResponder().getUserId() % 100 + 1));
+            responderDto.setNickname("티키 " + (c.getResponder().getId() % 100 + 1));
             responderDto.setRole(c.getResponder().getRole().name());
             answerDto.setUser(responderDto);
 
@@ -123,7 +117,7 @@ public class QuestionServiceImpl implements QuestionService {
         }).collect(Collectors.toList());
 
         dto.setAnswer(answerDtoList);
-        dto.setAnswerCount(answerDtoList.size());
+        dto.setAnswerCount(Long.valueOf(answerDtoList.size()));
         dto.setCreatedAt(question.getCreatedAt());
         dto.setMedal(medal);
         dto.setLikes(likes);
@@ -163,7 +157,7 @@ public class QuestionServiceImpl implements QuestionService {
         }
 
         // 댓글 작성자(user)와 요청자(userId) 비교
-        if (!comment.getResponder().getUserId().equals(userId)) {
+        if (!comment.getResponder().getId().equals(userId)) {
             throw new SecurityException("You are not authorized to delete this comment");
         }
 
@@ -206,7 +200,7 @@ public class QuestionServiceImpl implements QuestionService {
         }
 
         // 질문 상태를 ANSWERED로 변경
-        questions.forEach(q -> q.setStatus(QuestionStatus.ANSWERED));
+        questions.forEach(q -> q.updateStatus(QuestionStatus.ANSWERED));
 
         // 저장
         questionRepository.saveAll(questions);

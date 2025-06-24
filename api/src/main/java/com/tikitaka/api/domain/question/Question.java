@@ -25,7 +25,6 @@ public class Question extends BaseTimeEntity {
     @JoinColumn(name = "lecture_id")
     private Lecture lecture;
 
-    @Lob
     private String content;
 
     @Enumerated(EnumType.STRING)

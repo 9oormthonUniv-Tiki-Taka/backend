@@ -25,6 +25,5 @@ public class Comment extends BaseTimeEntity {
     @JoinColumn(name = "responder_id")
     private User responder;
 
-    @Lob
     private String content;
 }

@@ -34,11 +34,11 @@ public class QuestionDtos {
         private String status;
         private UserDto user;
         private List<AnswerDto> answer;
-        private int answerCount;
+        private Long answerCount;
         private LocalDateTime createdAt;
         private String medal;
-        private int likes;
-        private int wonder;
+        private Long likes;
+        private Long wonder;
     }
 
     @Data

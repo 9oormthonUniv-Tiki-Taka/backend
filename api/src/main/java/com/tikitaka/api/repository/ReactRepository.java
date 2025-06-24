@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReactRepository extends JpaRepository<React, Long>{
-    int countByTargetAndReactType(Question target, ReactType reactType);
+    Long countByTargetAndType(Question target, ReactType reactType);
 
     Page<React> findByUserId(Long userId, Pageable pageable);
 

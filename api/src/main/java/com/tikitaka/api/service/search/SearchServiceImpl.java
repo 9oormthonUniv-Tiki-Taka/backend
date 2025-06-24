@@ -46,7 +46,7 @@ public class SearchServiceImpl implements SearchService {
         List<Question> questions = questionRepository.findByContentContainingIgnoreCase(query);
 
         List<Object> results = questions.stream().map(q -> {
-            Long medal = reactRepository.countByTargetAndReactType(q, ReactType.MEDAL);
+            Long medal = reactRepository.countByTargetAndType(q, ReactType.MEDAL);
             if ("PROFESSOR".equals(role)) {
                 return new SearchResponse.QuestionResultForProfessor(
                         q.getQuestionId().toString(),
