@@ -21,7 +21,7 @@ public class QuestionDtos {
 
     @Data
     public static class AnswerDto {
-        private String id;
+        private Long id;
         private UserSimpleDto user;
         private String content;
         private LocalDateTime createdAt;
@@ -29,7 +29,7 @@ public class QuestionDtos {
 
     @Data
     public static class QuestionDetailDto {
-        private String id;
+        private Long id;
         private String content;
         private String status;
         private UserDto user;

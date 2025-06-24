@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    Optional<Comment> findFirstByQuestionOrderByCreatedAtAsc(Question question);
-
-    List<Comment> findAllByQuestionOrderByCreatedAtAsc(Question question);
+    List<Comment> findByQuestionOrderByCreatedAtAsc(Question question);
 
 }

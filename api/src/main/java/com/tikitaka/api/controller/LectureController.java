@@ -2,9 +2,8 @@ package com.tikitaka.api.controller;
 
 import com.tikitaka.api.domain.user.User;
 import com.tikitaka.api.dto.lecture.LectureListResponse;
-import com.tikitaka.api.dto.question.QuestionDtos;
+import com.tikitaka.api.dto.question.QuestionDtos.QuestionDetailDto;
 import com.tikitaka.api.service.LectureService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,8 +26,8 @@ public class LectureController {
     }
 
     @GetMapping("/{lectureId}/live/questions")
-    public ResponseEntity<?> getLiveQuestions(@PathVariable Long lectureId) {
-        List<QuestionDtos> questions = lectureService.getLiveQuestions(lectureId);
-        return ResponseEntity.ok(Map.of("questions", questions));
+    public Map<String, List<QuestionDetailDto>> getLiveQuestions(@PathVariable Long lectureId) {
+        List<QuestionDetailDto> questions = lectureService.getLiveQuestions(lectureId);
+        return Map.of("questions", questions);
     }
 }

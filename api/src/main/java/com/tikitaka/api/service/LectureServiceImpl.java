@@ -1,13 +1,17 @@
 package com.tikitaka.api.service;
 
 import com.tikitaka.api.domain.lecture.Lecture;
+import com.tikitaka.api.domain.react.ReactType;
+import com.tikitaka.api.domain.question.Question;
 import com.tikitaka.api.domain.user.User;
 import com.tikitaka.api.domain.user.UserRole;
 import com.tikitaka.api.dto.lecture.LectureDto;
 import com.tikitaka.api.dto.lecture.LectureListResponse;
-import com.tikitaka.api.dto.question.QuestionDtos;
+import com.tikitaka.api.dto.question.QuestionDtos.*;
+import com.tikitaka.api.repository.CommentRepository;
 import com.tikitaka.api.repository.LectureRepository;
 import com.tikitaka.api.repository.QuestionRepository;
+import com.tikitaka.api.repository.ReactRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -21,8 +25,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LectureServiceImpl implements LectureService {
 
-    private final LectureRepository lectureRepository;
     private final QuestionRepository questionRepository;
+    private final CommentRepository commentRepository;
+    private final ReactRepository reactRepository;
+    private final LectureRepository lectureRepository;
 
     @Override
     public LectureListResponse getLectureList(User user, String sort) {
@@ -94,8 +100,52 @@ public class LectureServiceImpl implements LectureService {
     }
 
     @Override
-    public List<QuestionDtos> getLiveQuestions(Long lectureId) {
-        // 구현 내용 작성
-        return null; // 임시 반환
+    public List<QuestionDetailDto> getLiveQuestions(Long lectureId) {
+        List<Question> questions = questionRepository.findByLecture_LectureIdOrderByCreatedAtDesc(lectureId);
+
+        return questions.stream().map(question -> {
+            QuestionDetailDto dto = new QuestionDetailDto();
+            dto.setId(question.getQuestionId());
+            dto.setContent(question.getContent());
+            dto.setStatus(question.getStatus().name());
+            dto.setCreatedAt(question.getCreatedAt());
+
+            // 유저 정보
+            User user = question.getUser();
+            UserDto userDto = new UserDto();
+            userDto.setNickname(user.getName());
+            userDto.setRole(user.getRole().name());
+            userDto.setAvatar(user.getAvatarUrl());
+            dto.setUser(userDto);
+
+            // 답변 목록
+            List<AnswerDto> answers = commentRepository.findByQuestionOrderByCreatedAtAsc(question)
+                    .stream().map(comment -> {
+                        AnswerDto answerDto = new AnswerDto();
+                        answerDto.setId(comment.getCommentId());
+                        answerDto.setContent(comment.getContent());
+                        answerDto.setCreatedAt(comment.getCreatedAt());
+
+                        UserSimpleDto responder = new UserSimpleDto();
+                        responder.setNickname(comment.getResponder().getName());
+                        responder.setRole(comment.getResponder().getRole().name());
+                        answerDto.setUser(responder);
+
+                        return answerDto;
+                    }).collect(Collectors.toList());
+            dto.setAnswer(answers);
+            dto.setAnswerCount(answers.size());
+
+            // 리액션 수
+            dto.setLikes(reactRepository.countByTargetAndReactType(question, ReactType.LIKE));
+            dto.setWonder(reactRepository.countByTargetAndReactType(question, ReactType.WONDER));
+
+            // 메달 유무
+            boolean hasMedal = reactRepository.countByTargetAndReactType(question, ReactType.MEDAL) > 0;
+            dto.setMedal(hasMedal ? "🥇" : null);
+
+            return dto;
+        }).collect(Collectors.toList());
     }
+
 }
