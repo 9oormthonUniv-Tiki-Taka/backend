@@ -119,7 +119,7 @@ public class SocketServiceImpl implements SocketService {
         React react = React.builder()
                 .user(user)
                 .target(question)
-                .reactType(ReactType.LIKE)
+                .type(ReactType.LIKE)
                 .build();
         
         reactRepository.save(react);       
@@ -135,7 +135,7 @@ public class SocketServiceImpl implements SocketService {
         React react = React.builder()
                 .user(user)
                 .target(question)
-                .reactType(ReactType.WONDER)
+                .type(ReactType.WONDER)
                 .build();
         
         reactRepository.save(react);       
@@ -151,7 +151,7 @@ public class SocketServiceImpl implements SocketService {
         React react = React.builder()
                 .user(user)
                 .target(question)
-                .reactType(ReactType.MEDAL)
+                .type(ReactType.MEDAL)
                 .build();
         
         reactRepository.save(react);      

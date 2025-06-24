@@ -49,14 +49,14 @@ public class LectureServiceImpl implements LectureService {
 
         if ("many".equals(sort.toLowerCase())) {
             allLectures = allLectures.stream()
-                    .sorted((l1, l2) -> Integer.compare(
+                    .sorted((l1, l2) -> Long.compare(
                             questionRepository.countByLecture(l2),
                             questionRepository.countByLecture(l1)
                     ))
                     .collect(Collectors.toList());
 
             todayLectures = todayLectures.stream()
-                    .sorted((l1, l2) -> Integer.compare(
+                    .sorted((l1, l2) -> Long.compare(
                             questionRepository.countByLecture(l2),
                             questionRepository.countByLecture(l1)
                     ))
@@ -83,7 +83,7 @@ public class LectureServiceImpl implements LectureService {
                     dto.setCreatedAt(lecture.getCreatedAt());
 
                     if (user.getRole() == UserRole.PROFESSOR) {
-                        int questionCount = questionRepository.countByLecture(lecture);
+                        Long questionCount = questionRepository.countByLecture(lecture);
                         dto.setFrequency(getFrequencyLabel(questionCount));
                     } else {
                         dto.setFrequency(null);
@@ -93,7 +93,7 @@ public class LectureServiceImpl implements LectureService {
                 .collect(Collectors.toList());
     }
 
-    private String getFrequencyLabel(int questionCount) {
+    private String getFrequencyLabel(Long questionCount) {
         if (questionCount >= 10) return "많음";
         if (questionCount >= 5) return "보통";
         return "적음";
@@ -134,14 +134,14 @@ public class LectureServiceImpl implements LectureService {
                         return answerDto;
                     }).collect(Collectors.toList());
             dto.setAnswer(answers);
-            dto.setAnswerCount(answers.size());
+            dto.setAnswerCount(Long.valueOf(answers.size()));
 
             // 리액션 수
-            dto.setLikes(reactRepository.countByTargetAndReactType(question, ReactType.LIKE));
-            dto.setWonder(reactRepository.countByTargetAndReactType(question, ReactType.WONDER));
+            dto.setLikes(reactRepository.countByTargetAndType(question, ReactType.LIKE));
+            dto.setWonder(reactRepository.countByTargetAndType(question, ReactType.WONDER));
 
             // 메달 유무
-            boolean hasMedal = reactRepository.countByTargetAndReactType(question, ReactType.MEDAL) > 0;
+            boolean hasMedal = reactRepository.countByTargetAndType(question, ReactType.MEDAL) > 0;
             dto.setMedal(hasMedal ? "🥇" : null);
 
             return dto;

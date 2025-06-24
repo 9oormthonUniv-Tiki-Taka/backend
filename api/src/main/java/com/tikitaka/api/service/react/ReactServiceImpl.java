@@ -53,11 +53,11 @@ public class ReactServiceImpl implements ReactService {
         React react = React.builder()
                 .user(user)
                 .target(question)
-                .reactType(ReactType.LIKE)
+                .type(ReactType.LIKE)
                 .build();
         
         reactRepository.save(react);
-        Long count = reactRepository.countByTargetAndReactType(question, ReactType.LIKE);
+        Long count = reactRepository.countByTargetAndType(question, ReactType.LIKE);
         ReactResponse response = new ReactResponse();
         response.setTargetType("like");
         response.setTargetId(request.getTargetId());
@@ -77,12 +77,12 @@ public class ReactServiceImpl implements ReactService {
         React react = React.builder()
                 .user(user)
                 .target(question)
-                .reactType(ReactType.WONDER)
+                .type(ReactType.WONDER)
                 .build();
 
         reactRepository.save(react);
         
-        Long count = reactRepository.countByTargetAndReactType(question, ReactType.WONDER);
+        Long count = reactRepository.countByTargetAndType(question, ReactType.WONDER);
 
         ReactResponse response = new ReactResponse();
         response.setTargetType("wonder");
@@ -105,12 +105,12 @@ public class ReactServiceImpl implements ReactService {
         React react = React.builder()
                 .user(user)
                 .target(question)
-                .reactType(ReactType.MEDAL)
+                .type(ReactType.MEDAL)
                 .build();
 
         reactRepository.save(react);
         
-        Long count = reactRepository.countByTargetAndReactType(question, ReactType.MEDAL);
+        Long count = reactRepository.countByTargetAndType(question, ReactType.MEDAL);
 
         ReactResponse response = new ReactResponse();
         response.setTargetType("medal");

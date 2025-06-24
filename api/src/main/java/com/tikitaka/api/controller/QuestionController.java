@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/lectures/{lectureId}/questions")
+@RequiredArgsConstructor
 public class QuestionController {
 
     private final QuestionService questionService;

@@ -25,5 +25,5 @@ public class React extends BaseTimeEntity{
     private Question target;
 
     @Enumerated(EnumType.STRING)
-    private ReactType reactType;
+    private ReactType type;
 }

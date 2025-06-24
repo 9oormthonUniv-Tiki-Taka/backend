@@ -78,8 +78,8 @@ public class UserServiceImpl implements UserService {
 
     public UserPointResponse toUserPointResponse(User user, Page<PointTransaction> transactions) {
         UserPointResponse response = new UserPointResponse();
-        Long earn = pointTransactionRepository.countByUserIdAndType(user.getUserId(), PointType.EARN);
-        Long spend = pointTransactionRepository.countByUserIdAndType(user.getUserId(), PointType.SPEND);
+        Long earn = pointTransactionRepository.countByUserIdAndType(user.getId(), PointType.EARN);
+        Long spend = pointTransactionRepository.countByUserIdAndType(user.getId(), PointType.SPEND);
         response.setPoint(earn - spend);
 
         Page<UserPointResponse.PointDto> pointDtos = transactions.map(pt -> {
@@ -130,7 +130,7 @@ public class UserServiceImpl implements UserService {
         Page<UserReactResponse.ReactDto> dtos = reacts.map(r -> {
                     UserReactResponse.ReactDto dto = new UserReactResponse.ReactDto();
                     dto.setId(r.getReactId().toString());
-                    dto.setType(r.getReactType().name().toLowerCase());
+                    dto.setType(r.getType().name().toLowerCase());
                     dto.setLectureName(r.getTarget().getLecture().getName());
                     dto.setCreatedAt(r.getCreatedAt());
                     return dto;
