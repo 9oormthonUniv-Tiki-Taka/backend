@@ -23,13 +23,12 @@ public class LectureController {
     public LectureListResponse getLectureList(
             @AuthenticationPrincipal User user,
             @RequestParam(defaultValue = "recent") String sort) {
-
         return lectureService.getLectureList(user, sort);
     }
 
     @GetMapping("/{lectureId}/live/questions")
     public ResponseEntity<?> getLiveQuestions(@PathVariable Long lectureId) {
-        List<QuestionDtos.QuestionDetailDto> questions = lectureService.getLiveQuestions(lectureId);
+        List<QuestionDtos> questions = lectureService.getLiveQuestions(lectureId);
         return ResponseEntity.ok(Map.of("questions", questions));
     }
 }
