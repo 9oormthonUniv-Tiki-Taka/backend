@@ -5,21 +5,32 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.web.bind.annotation.*;
 
 import com.tikitaka.api.service.search.SearchService;
+import com.tikitaka.api.dto.search.*;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 
 import lombok.RequiredArgsConstructor;
 
-import com.tikitaka.api.dto.search.*;
-
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Search API", description = "AI 기반 질문 유사도 검색 API")
 public class SearchController {
 
     private final SearchService searchService;
 
+    @Operation(
+            summary = "유사 질문 검색",
+            description = "사용자가 입력한 질문과 유사한 기존 질문을 검색합니다."
+    )
     @PostMapping("/api/search")
-    public ResponseEntity<SearchResponse> search(@Header("user_id") Long userId, @RequestBody SearchRequest request) {
+    public ResponseEntity<SearchResponse> search(
+            @Header("user_id") Long userId,
+            @RequestBody SearchRequest request
+    ) {
         SearchResponse response = searchService.search(userId, request);
         return ResponseEntity.ok(response);
     }
 }
+
 

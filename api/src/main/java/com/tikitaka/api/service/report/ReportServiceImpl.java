@@ -58,7 +58,7 @@ public class ReportServiceImpl implements ReportService {
                 .status(ReportStatus.신고완료)
                 .build();
 
-        reportRepository.save(report);
+        Report saved = reportRepository.save(report);
     }
 
     private void handleCommentReport(Long userId, ReportRequest request) {

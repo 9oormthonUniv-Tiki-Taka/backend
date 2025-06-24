@@ -15,4 +15,5 @@ public interface UserService {
     UserReactResponse getMyReacts(Long userId, String type, Pageable pageable);
     UserReportResponse getMyReports(Long userId, Pageable pageable);
     UserPointResponse getMyPoints(Long userId, String type, Pageable pageable);
+
 }

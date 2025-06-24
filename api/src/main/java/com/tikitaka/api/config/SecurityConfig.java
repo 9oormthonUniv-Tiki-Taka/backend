@@ -47,4 +47,4 @@ public class SecurityConfig {
             throws Exception {
         return configuration.getAuthenticationManager();
     }
-}
+
