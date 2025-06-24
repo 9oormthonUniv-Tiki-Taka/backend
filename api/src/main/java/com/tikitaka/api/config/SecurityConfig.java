@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.config.Customizer;
 
 @Configuration
 public class SecurityConfig {
@@ -13,17 +12,15 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-resources/**",
-                                "/webjars/**"
-                        ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()  // 모든 요청 로그인 없이 허용
                 )
-                .formLogin(Customizer.withDefaults()) // ✅ 최신 방식
-                .csrf(csrf -> csrf.disable());        // 필요시 CSRF 끄기
+                .csrf(csrf -> csrf.disable()) // CSRF 비활성화
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin())  // H2 콘솔 iframe 허용 (최신 API)
+                );
 
         return http.build();
     }
 }
+
+

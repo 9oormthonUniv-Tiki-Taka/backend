@@ -6,5 +6,6 @@ import java.util.List;
 @Data
 public class QuestionBatchRequest {
     private List<String> questionIDs;
+    private String content;
 }
 

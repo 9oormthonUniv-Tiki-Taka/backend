@@ -12,6 +12,7 @@ import com.tikitaka.api.repository.QuestionRepository;
 import com.tikitaka.api.repository.ReactRepository;
 import com.tikitaka.api.repository.UserRepository;
 import com.tikitaka.api.service.ai.GptService;
+import com.tikitaka.api.util.UserUtil;
 import jakarta.persistence.EntityNotFoundException;
 
 import lombok.RequiredArgsConstructor;
@@ -33,8 +34,7 @@ public class QuestionServiceImpl implements QuestionService {
     private final ReactRepository reactRepository;
     private final UserRepository userRepository;
     private final GptService gptService;
-
-
+    private final UserUtil userUtil;
 
     // --- 질문 목록 조회 (페이징, 필터, 정렬 포함) ---
     @Override
@@ -191,21 +191,31 @@ public class QuestionServiceImpl implements QuestionService {
     public QuestionBatchResponse answerQuestionsBatch(Long lectureId, QuestionBatchRequest request) {
         List<Long> questionIds = request.getQuestionIDs().stream()
                 .map(Long::parseLong)
-                .collect(Collectors.toList());
+                .toList();
 
-        // 강의에 해당하는 질문 조회
+        // 질문 조회 및 필터
         List<Question> questions = questionRepository.findAllById(questionIds).stream()
                 .filter(q -> q.getLecture().getLectureId().equals(lectureId))
-                .collect(Collectors.toList());
+                .toList();
 
         if (questions.size() != questionIds.size()) {
             throw new EntityNotFoundException("Some questions not found or do not belong to the lecture");
         }
 
-        // 질문 상태를 ANSWERED로 변경
-        questions.forEach(q -> q.updateStatus(QuestionStatus.ANSWERED));
+        // 현재 로그인 유저 가져오기 (예시)
+        User responder = userUtil.getCurrentUser(); // 직접 구현 필요
 
-        // 저장
+        // 질문 상태 업데이트 및 댓글 생성
+        questions.forEach(q -> {
+            q.updateStatus(QuestionStatus.ANSWERED);
+            Comment comment = Comment.builder()
+                    .question(q)
+                    .responder(responder)
+                    .content(request.getContent())
+                    .build();
+            commentRepository.save(comment);
+        });
+
         questionRepository.saveAll(questions);
 
         List<QuestionBatchResponse.QuestionBatchDto> batchDtos = questions.stream().map(q -> {
@@ -215,7 +225,7 @@ public class QuestionServiceImpl implements QuestionService {
             dto.setContent(q.getContent());
             dto.setCreatedAt(q.getCreatedAt());
             return dto;
-        }).collect(Collectors.toList());
+        }).toList();
 
         QuestionBatchResponse response = new QuestionBatchResponse();
         response.setQuestions(batchDtos);
