@@ -59,7 +59,6 @@ public class ReportServiceImpl implements ReportService {
                 .build();
 
         Report saved = reportRepository.save(report);
-        System.out.println("Saved report ID: " + saved.getReportId());
     }
 
     private void handleCommentReport(Long userId, ReportRequest request) {
