@@ -1,4 +1,4 @@
-package com.tikitaka.api.domain;
+package com.tikitaka.api.domain.common;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
