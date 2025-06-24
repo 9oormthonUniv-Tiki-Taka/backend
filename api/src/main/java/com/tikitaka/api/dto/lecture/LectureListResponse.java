@@ -5,5 +5,6 @@ import java.util.List;
 
 @Data
 public class LectureListResponse {
-    private List<LectureDto> lectures;
+    private List<LectureDto> allLectures;
+    private List<LectureDto> todayLectures;
 }

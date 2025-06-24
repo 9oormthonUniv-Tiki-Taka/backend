@@ -23,8 +23,8 @@ public class Lecture extends BaseTimeEntity {
     private String room;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "professor_id")
-    private User professor;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     private DayOfWeek dayOfWeek;
     private LocalTime startTime;

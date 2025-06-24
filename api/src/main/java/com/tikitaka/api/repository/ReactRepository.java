@@ -9,7 +9,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReactRepository extends JpaRepository<React, Long>{
-    long countByTargetAndReactType(Question target, ReactType reactType);
+    int countByTargetAndReactType(Question target, ReactType reactType);
 
     List<React> findByUserId(Long userId);
 

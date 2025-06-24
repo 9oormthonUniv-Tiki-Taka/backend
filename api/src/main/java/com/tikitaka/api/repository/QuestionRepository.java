@@ -20,11 +20,9 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     List<Question> findByUserId(Long userId);
     Long countByLecture(Lecture lecture);
 
-    @Query("SELECT q FROM Question q JOIN FETCH q.user WHERE q.lecture.lectureId = :lectureId ORDER BY q.createdAt ASC")
-    List<Question> findByLectureId(@Param("lectureId") Long lectureId);
+    int countByLecture(Lecture lecture);
 
-    @Query("SELECT q.lecture.lectureId, COUNT(q) FROM Question q WHERE q.lecture.lectureId IN :lectureIds GROUP BY q.lecture.lectureId")
-    List<Object[]> countQuestionsByLectureIds(@Param("lectureIds") List<Long> lectureIds);
+    List<Question> findByLecture_LectureIdOrderByCreatedAtDesc(Long lectureId);
 
     @Query("""
         SELECT q FROM Question q
