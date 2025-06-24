@@ -33,9 +33,9 @@ public class SearchServiceImpl implements SearchService {
 
         String role = user.getRole().name();
 
-        if (request.getType() == "question") {
+        if ("question".equals(request.getType())) {
             return searchQuestions(role, request.getQuery());
-        } else if (request.getType() == "lecture") {
+        } else if ("lecture".equals(request.getType())) {
             return searchLectures(role, request.getQuery());
         } else {
             throw new IllegalArgumentException("Invalid search type: " + request.getType());
