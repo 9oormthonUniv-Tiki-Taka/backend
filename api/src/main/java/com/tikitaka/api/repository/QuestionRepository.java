@@ -1,5 +1,6 @@
 package com.tikitaka.api.repository;
 
+import com.tikitaka.api.domain.lecture.Lecture;
 import com.tikitaka.api.domain.question.Question;
 import com.tikitaka.api.domain.question.QuestionStatus;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
+
+    int countByLecture(Lecture lecture);
 
     @Query("SELECT q FROM Question q JOIN FETCH q.user WHERE q.lecture.lectureId = :lectureId ORDER BY q.createdAt ASC")
     List<Question> findByLectureId(@Param("lectureId") Long lectureId);
