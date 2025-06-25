@@ -1,6 +1,7 @@
 package com.tikitaka.api.service.email;
 
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -18,11 +19,12 @@ public class EmailServiceImpl implements EmailService {
     public void sendEmail(String to, String subject, String content) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setFrom("noti@taehyeok.org");
             helper.setTo(to);
             helper.setSubject(subject);
-            helper.setText(content, false);
+            helper.setText(content);
 
             mailSender.send(message);
         } catch (MessagingException e) {
