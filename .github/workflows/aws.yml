@@ -1,0 +1,77 @@
+name: Build and Deploy to EC2
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ✅ Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: ✅ Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: 🛠️ Grant execute permission for Gradle
+        run: chmod +x ./gradlew
+        working-directory: api
+
+      - name: 🏗️ Build with Gradle
+        run: ./gradlew clean build
+        env:
+          GMAIL_PASSWORD: ${{ secrets.GMAIL_PASSWORD }}
+          GMAIL_SMTP_HOST: ${{ secrets.GMAIL_SMTP_HOST }}
+          GMAIL_SMTP_PORT: ${{ secrets.GMAIL_SMTP_PORT }}
+          GMAIL_USERNAME: ${{ secrets.GMAIL_USERNAME }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GPT_KEY: ${{ secrets.GPT_KEY }}
+        working-directory: api
+
+      - name: 🔐 Create SSH private key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > key.pem
+          chmod 400 key.pem
+
+      - name: 🚀 SCP JAR to EC2
+        run: |
+          scp -i key.pem -o StrictHostKeyChecking=no \
+            api/build/libs/*.jar \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/app.jar
+
+      - name: 🧨 SSH into EC2 and restart application
+        env:
+          GMAIL_PASSWORD: ${{ secrets.GMAIL_PASSWORD }}
+          GMAIL_SMTP_HOST: ${{ secrets.GMAIL_SMTP_HOST }}
+          GMAIL_SMTP_PORT: ${{ secrets.GMAIL_SMTP_PORT }}
+          GMAIL_USERNAME: ${{ secrets.GMAIL_USERNAME }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GPT_KEY: ${{ secrets.GPT_KEY }}
+        run: |
+          ssh -i key.pem -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << EOF
+              echo "🛑 Killing existing Java process (if any)..."
+              pkill -f 'java' || true
+      
+              echo "🚀 Starting new app with environment variables..."
+      
+              export GMAIL_PASSWORD="${GMAIL_PASSWORD}"
+              export GMAIL_SMTP_HOST="${GMAIL_SMTP_HOST}"
+              export GMAIL_SMTP_PORT="${GMAIL_SMTP_PORT}"
+              export GMAIL_USERNAME="${GMAIL_USERNAME}"
+              export GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID}"
+              export GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET}"
+              export GPT_KEY="${GPT_KEY}"
+      
+              nohup java -jar /home/${{ secrets.SSH_USER }}/app.jar/api-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+      
+              echo "✅ Deployed!"
+          EOF
