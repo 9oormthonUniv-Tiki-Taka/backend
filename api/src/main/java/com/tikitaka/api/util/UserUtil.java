@@ -1,9 +1,12 @@
 package com.tikitaka.api.util;
 
 import com.tikitaka.api.domain.user.User;
+import com.tikitaka.api.oauth.CustomOAuth2User;
 import com.tikitaka.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -11,35 +14,36 @@ import org.springframework.stereotype.Component;
 public class UserUtil {
     private final UserRepository userRepository;
 
-    //test용
     public User getCurrentUser() {
-        String email;
-        try {
-            email = SecurityContextHolder.getContext().getAuthentication().getName();
-        } catch (Exception e) {
-            email = null;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new RuntimeException("Authentication required");
         }
 
-        final String finalEmail = (email == null || email.equals("anonymousUser")) ? "test@tikitaka.com" : email;
+        Object principal = auth.getPrincipal();
 
-        return userRepository.findByEmail(finalEmail)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + finalEmail));
+        if (principal instanceof CustomOAuth2User customUser) {
+            return customUser.getUser();
+        }
+
+        if (principal instanceof OAuth2User oAuth2User) {
+            String sub = oAuth2User.getAttribute("sub");
+            if (sub != null && !sub.isEmpty()) {
+                return userRepository.findBySub(sub)
+                        .orElseThrow(() -> new RuntimeException("User not found with sub: " + sub));
+            }
+
+            throw new RuntimeException("Sub not found in OAuth2 attributes");
+        }
+
+        if (principal instanceof com.tikitaka.api.jwt.CustomUserDetails userDetails) {
+            String sub = userDetails.getUsername();
+            return userRepository.findBySub(sub)
+                    .orElseThrow(() -> new RuntimeException("User not found with sub: " + sub));
+        }
+
+        throw new RuntimeException("Unsupported principal type: " + principal.getClass().getName());
     }
-    /*
-    배포용
-    public User getCurrentUser() {
-    String email = SecurityContextHolder.getContext().getAuthentication().getName();
-
-    if (email == null || email.equals("anonymousUser")) {
-        throw new RuntimeException("Authentication required");
-        // 또는 직접 인증 예외를 던질 수도 있어요
-        // throw new UsernameNotFoundException("Authentication required");
-    }
-
-    return userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-}
-     */
 
 }
-
