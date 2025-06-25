@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import com.tikitaka.api.domain.user.User;
 import com.tikitaka.api.jwt.JwtTokenProvider;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Map;
 import java.util.HashMap;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +38,15 @@ public class CustomOAuth2SuccessHandler  implements AuthenticationSuccessHandler
 
         String token = jwtTokenProvider.createToken(user.getSub(), user.getRole());
 
+        ResponseCookie cookie = ResponseCookie.from("Authorization", token)
+                                                .httpOnly(true)
+                                                .secure(false)
+                                                .sameSite("Lax")
+                                                .path("/")
+                                                .maxAge(Duration.ofDays(1))
+                                                .build();
+
+        response.addHeader("Set-Cookie", cookie.toString());
         Map<String, Object> result = new HashMap<>();
         result.put("status", "SUCCESS");
         result.put("token", token);
@@ -47,7 +58,7 @@ public class CustomOAuth2SuccessHandler  implements AuthenticationSuccessHandler
             "name", user.getName(),
             "sub", user.getSub()
         ));
-
+        response.setContentType("application/json;charset=UTF-8");
         new ObjectMapper().writeValue(response.getWriter(), result);
     }
 }
