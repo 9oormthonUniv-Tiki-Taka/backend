@@ -2,10 +2,12 @@ package com.tikitaka.api.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.tikitaka.api.service.search.SearchService;
 import com.tikitaka.api.dto.search.*;
+import com.tikitaka.api.jwt.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,10 +27,10 @@ public class SearchController {
     )
     @PostMapping("/api/search")
     public ResponseEntity<SearchResponse> search(
-            @Header("user_id") Long userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody SearchRequest request
     ) {
-        SearchResponse response = searchService.search(userId, request);
+        SearchResponse response = searchService.search(userDetails.getUser().getId(), request);
         return ResponseEntity.ok(response);
     }
 }

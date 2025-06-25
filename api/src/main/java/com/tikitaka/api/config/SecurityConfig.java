@@ -31,6 +31,7 @@ public class SecurityConfig {
             .headers(headers -> headers.frameOptions().sameOrigin()) // H2 Console은 iframe 필요
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**", "/oauth2/**", "/login/**", "/h2-console/**").permitAll()
+                .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll() 
             )
             .oauth2Login(oauth -> oauth
@@ -47,4 +48,5 @@ public class SecurityConfig {
             throws Exception {
         return configuration.getAuthenticationManager();
     }
+}
 

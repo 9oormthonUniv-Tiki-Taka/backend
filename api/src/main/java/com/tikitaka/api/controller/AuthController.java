@@ -27,13 +27,10 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
     private final EmailService emailService;
 
-    @PostMapping("/api/code")
+    @PostMapping("/api/auth/code")
     public ResponseEntity<?> sendVerificationCode(@RequestParam String sub,
             @RequestParam String studentId) {
         String json = redisTemplate.opsForValue().get("verify:" + sub);
-        if (json == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("임시 사용자 정보가 없습니다.");
-        }
         if (json != null) {
             try {
                 OAuth2VerificationData data = objectMapper.readValue(json, OAuth2VerificationData.class);
@@ -42,14 +39,25 @@ public class AuthController {
                         studentId + "@dankook.ac.kr",
                         "[티키타카] 인증코드입니다",
                         "아래 인증코드를 5분 이내에 입력해주세요:\n\n" + storedCode);
+                return ResponseEntity.ok(Map.of(
+                    "status", "SUCCESS",
+                    "message", "인증 코드가 이메일로 전송되었습니다."
+                ));
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "status", "ERROR",
+                    "message", "인증 코드 전송 실패"
+                ));
             }
         }
-        return ResponseEntity.ok("인증 코드가 이메일로 전송되었습니다.");
+        return ResponseEntity.badRequest().body(Map.of(
+            "status", "ERROR",
+            "message", "유효하지 않은 요청입니다."
+        ));
     }
 
-    @PostMapping("/api/verify")
+    @PostMapping("/api/auth/verify")
     public ResponseEntity<?> verifyStudent(
             @RequestParam String sub,
             @RequestParam String code,
@@ -68,25 +76,28 @@ public class AuthController {
                         .email(data.getEmail())
                         .name(data.getName())
                         .studentId(studentId)
+                        .sub(sub)
                         .role(role)
                         .build());
                 String token = jwtTokenProvider.createToken(user.getEmail(), user.getRole());
-                return ResponseEntity.ok().body(Map.of("token", token));
+                Map<String, Object> responseBody = Map.of(
+                    "status", "SUCCESS",
+                    "token", token,
+                    "user", Map.of(
+                        "id", user.getId(),
+                        "email", user.getEmail(),
+                        "name", user.getName(),
+                        "studentId", user.getStudentId(),
+                        "role", user.getRole().name()
+                    )
+                );
+                return ResponseEntity.ok().body(responseBody);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("인증 처리 중 오류 발생");
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증 실패");
-    }
-
-    @PostMapping("/api/signin")
-    public ResponseEntity<?> signIn() {
-        return ResponseEntity.ok("로그인 성공");
-    }
-
-    @PostMapping("/api/signout")
-    public ResponseEntity<?> signOut() {
-        return ResponseEntity.ok("로그아웃 성공");
     }
 
     private UserRole determineRoleFromStudentId(String studentId) {
