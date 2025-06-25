@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -33,7 +34,7 @@ public class CustomOAuth2SuccessHandler  implements AuthenticationSuccessHandler
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
         User user = oAuth2User.getUser();
 
-        String token = jwtTokenProvider.createToken(user.getId().toString(), user.getRole());
+        String token = jwtTokenProvider.createToken(user.getSub(), user.getRole());
 
         Map<String, Object> result = new HashMap<>();
         result.put("status", "SUCCESS");

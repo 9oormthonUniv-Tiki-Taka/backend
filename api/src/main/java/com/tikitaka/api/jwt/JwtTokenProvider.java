@@ -16,10 +16,10 @@ public class JwtTokenProvider {
     private final String SECRET_KEY = "aVeryLongSecretKeyWithAtLeast32Characterssdfsdfefssefsfe";
     private final long EXPIRATION_MS = 1000 * 60 * 60 * 24; // 1일
 
-    public String createToken(String userId, UserRole role) {
+    public String createToken(String sub, UserRole role) {
         Date now = new Date();
         return Jwts.builder()
-                .setSubject(String.valueOf(userId))
+                .setSubject(sub)
                 .claim("role", role.name())
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + EXPIRATION_MS))
