@@ -30,18 +30,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = jwtTokenProvider.resolveToken(request);
 
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            String userId = jwtTokenProvider.getUserIdFromToken(token);
+        try {
+            if (token != null && jwtTokenProvider.validateToken(token)) {
+                String sub = jwtTokenProvider.getUserIdFromToken(token);
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(sub);
 
-            JwtAuthenticationToken authentication = new JwtAuthenticationToken(
-                    userDetails, userDetails.getAuthorities());
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                JwtAuthenticationToken authentication = new JwtAuthenticationToken(
+                        userDetails, userDetails.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
+            e.printStackTrace(); 
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Invalid or expired JWT token\"}");
+            return;
         }
-
         filterChain.doFilter(request, response);
     }
 }

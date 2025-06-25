@@ -11,6 +11,9 @@ import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
 import com.tikitaka.api.oauth.CustomOAuth2SuccessHandler;
 import com.tikitaka.api.oauth.CustomOAuth2UserService;
+
+import jakarta.servlet.http.HttpServletResponse;
+
 import com.tikitaka.api.jwt.JwtAuthenticationFilter;
 import com.tikitaka.api.oauth.CustomOAuth2FailureHandler;
 
@@ -31,15 +34,20 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .headers(headers -> headers.frameOptions().sameOrigin())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/oauth2/**", "/login/**", "/h2-console/**").permitAll()
+                .requestMatchers("/auth/**", "/oauth2/**", "/login/**", "/h2-console/**").permitAll()
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll() 
+            )
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                })
             )
             .oauth2Login(oauth -> oauth
                 .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
                 .successHandler(oAuth2SuccessHandler)
                 .failureHandler(oAuth2FailureHandler)
-            ).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);;
+            ).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

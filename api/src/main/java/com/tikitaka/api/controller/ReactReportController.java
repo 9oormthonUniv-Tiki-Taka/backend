@@ -12,12 +12,13 @@ import com.tikitaka.api.service.report.ReportService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
-
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Reaction & Report API", description = "질문에 대한 리액션 및 신고 관련 API")
+@SecurityRequirement(name = "JWT")
 public class ReactReportController {
 
     private final ReportService reportService;
