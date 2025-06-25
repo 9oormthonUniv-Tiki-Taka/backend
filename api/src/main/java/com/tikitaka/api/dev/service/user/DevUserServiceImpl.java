@@ -1,4 +1,4 @@
-package com.tikitaka.api.dev.service;
+package com.tikitaka.api.dev.service.user;
 
 import com.tikitaka.api.dev.dto.UserRequest;
 import com.tikitaka.api.domain.user.User;

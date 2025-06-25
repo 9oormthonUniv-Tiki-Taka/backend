@@ -1,4 +1,4 @@
-package com.tikitaka.api.dev.service;
+package com.tikitaka.api.dev.service.point;
 
 import com.tikitaka.api.dev.dto.PointRequest;
 import com.tikitaka.api.domain.point.PointTransaction;

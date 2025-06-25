@@ -1,4 +1,4 @@
-package com.tikitaka.api.dev.service;
+package com.tikitaka.api.dev.service.lecture;
 
 import com.tikitaka.api.dev.dto.LectureRequest;
 
