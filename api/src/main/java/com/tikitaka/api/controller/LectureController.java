@@ -1,6 +1,5 @@
 package com.tikitaka.api.controller;
 
-import com.tikitaka.api.domain.user.User;
 import com.tikitaka.api.dto.lecture.LectureListResponse;
 import com.tikitaka.api.dto.question.QuestionDtos.QuestionDetailDto;
 import com.tikitaka.api.jwt.CustomUserDetails;
@@ -10,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -18,6 +18,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/lectures")
+@SecurityRequirement(name = "JWT")
 @Tag(name = "Lecture API", description = "강의 정보 및 실시간 질문 조회 API")
 public class LectureController {
 

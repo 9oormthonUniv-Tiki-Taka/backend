@@ -1,7 +1,6 @@
 package com.tikitaka.api.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,12 +10,13 @@ import com.tikitaka.api.jwt.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
-
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Search API", description = "AI 기반 질문 유사도 검색 API")
+@SecurityRequirement(name = "JWT")
 public class SearchController {
 
     private final SearchService searchService;

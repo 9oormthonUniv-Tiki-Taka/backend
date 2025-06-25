@@ -27,7 +27,7 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
     private final EmailService emailService;
 
-    @PostMapping("/api/auth/code")
+    @PostMapping("/auth/code")
     public ResponseEntity<?> sendVerificationCode(@RequestParam String sub,
             @RequestParam String studentId) {
         String json = redisTemplate.opsForValue().get("verify:" + sub);
@@ -57,7 +57,7 @@ public class AuthController {
         ));
     }
 
-    @PostMapping("/api/auth/verify")
+    @PostMapping("/auth/verify")
     public ResponseEntity<?> verifyStudent(
             @RequestParam String sub,
             @RequestParam String code,
@@ -79,7 +79,8 @@ public class AuthController {
                         .sub(sub)
                         .role(role)
                         .build());
-                String token = jwtTokenProvider.createToken(user.getEmail(), user.getRole());
+                String token = jwtTokenProvider.createToken(sub, user.getRole());
+
                 Map<String, Object> responseBody = Map.of(
                     "status", "SUCCESS",
                     "token", token,
