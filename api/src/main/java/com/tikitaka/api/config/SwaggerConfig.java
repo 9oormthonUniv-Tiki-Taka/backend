@@ -33,7 +33,7 @@ public class SwaggerConfig {
         localServer.setDescription("로컬 개발 서버");
 
         Server devServer = new Server();
-        devServer.setUrl("https://api.tikitaka.o-r.kr:8080");
+        devServer.setUrl("https://api.tikitaka.o-r.kr");
         devServer.setDescription("원격 개발 서버");
         return new OpenAPI()
                 .info(new io.swagger.v3.oas.models.info.Info()
