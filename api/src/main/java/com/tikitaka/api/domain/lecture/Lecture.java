@@ -27,4 +27,5 @@ public class Lecture extends BaseTimeEntity {
 
     private DayOfWeek dayOfWeek;
     private LocalTime startTime;
+    private LocalTime endTime;
 }
