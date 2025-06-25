@@ -1,5 +1,7 @@
 package com.tikitaka.api.controller;
 
+import java.net.URI;
+import java.time.Duration;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,7 +15,9 @@ import com.tikitaka.api.service.email.EmailService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +30,13 @@ public class AuthController {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final EmailService emailService;
+
+   @GetMapping("/login")
+    public ResponseEntity<Void> login() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create("/oauth2/authorization/google"));
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
+    }
 
     @PostMapping("/auth/code")
     public ResponseEntity<?> sendVerificationCode(@RequestParam String sub,
@@ -81,6 +92,17 @@ public class AuthController {
                         .build());
                 String token = jwtTokenProvider.createToken(sub, user.getRole());
 
+                ResponseCookie cookie = ResponseCookie.from("Authorization", token)
+                                                        .httpOnly(true)
+                                                        .secure(false)
+                                                        .sameSite("Lax")
+                                                        .path("/")
+                                                        .maxAge(Duration.ofDays(1))
+                                                        .build();
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
+
                 Map<String, Object> responseBody = Map.of(
                     "status", "SUCCESS",
                     "token", token,
@@ -92,7 +114,7 @@ public class AuthController {
                         "role", user.getRole().name()
                     )
                 );
-                return ResponseEntity.ok().body(responseBody);
+                return ResponseEntity.ok().headers(headers).body(responseBody);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("인증 처리 중 오류 발생");
