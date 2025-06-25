@@ -202,8 +202,7 @@ public class QuestionServiceImpl implements QuestionService {
             throw new EntityNotFoundException("Some questions not found or do not belong to the lecture");
         }
 
-        // 현재 로그인 유저 가져오기 (예시)
-        User responder = userUtil.getCurrentUser(); // 직접 구현 필요
+        User responder = userUtil.getCurrentUser();
 
         // 질문 상태 업데이트 및 댓글 생성
         questions.forEach(q -> {
