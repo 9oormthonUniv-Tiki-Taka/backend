@@ -1,11 +1,12 @@
 package com.tikitaka.api.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.tikitaka.api.dto.react.*;
 import com.tikitaka.api.dto.report.*;
+import com.tikitaka.api.jwt.CustomUserDetails;
 import com.tikitaka.api.service.react.ReactService;
 import com.tikitaka.api.service.report.ReportService;
 
@@ -28,10 +29,10 @@ public class ReactReportController {
     )
     @PostMapping("/api/reacts")
     public ResponseEntity<ReactResponse> postReact(
-            @Header("userId") Long userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody ReactRequest request
     ) {
-        ReactResponse response = reactService.reactToContent(userId, request);
+        ReactResponse response = reactService.reactToContent(userDetails.getUser().getId(), request);
         return ResponseEntity.ok(response);
     }
 
@@ -41,10 +42,10 @@ public class ReactReportController {
     )
     @PostMapping("/api/reports")
     public ResponseEntity<?> postReport(
-            @Header("userId") Long userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody ReportRequest request
     ) {
-        reportService.reportContent(userId, request);
+        reportService.reportContent(userDetails.getUser().getId(), request);
         return ResponseEntity.ok("신고 등록 완료");
     }
 }

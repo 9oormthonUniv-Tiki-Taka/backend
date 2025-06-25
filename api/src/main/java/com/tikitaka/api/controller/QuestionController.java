@@ -2,6 +2,7 @@ package com.tikitaka.api.controller;
 
 import com.tikitaka.api.domain.user.UserRole;
 import com.tikitaka.api.dto.question.*;
+import com.tikitaka.api.jwt.CustomUserDetails;
 import com.tikitaka.api.service.question.QuestionService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,10 +32,9 @@ public class QuestionController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false, defaultValue = "recent") String sort,
             @RequestParam(required = false, defaultValue = "0") int page,
-            @RequestHeader("X-User-Role") String userRoleStr
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        UserRole role = UserRole.valueOf(userRoleStr.toUpperCase());
-        Page<QuestionListDto> questions = questionService.getQuestions(lectureId, role, status, sort, page);
+        Page<QuestionListDto> questions = questionService.getQuestions(lectureId, userDetails.getUser().getRole(), status, sort, page);
         return ResponseEntity.ok(questions);
     }
 
@@ -45,9 +46,9 @@ public class QuestionController {
     public ResponseEntity<?> getQuestionDetail(
             @PathVariable Long lectureId,
             @PathVariable Long questionId,
-            @RequestParam Long userId
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        QuestionDtos.QuestionDetailResponse response = questionService.getQuestionDetail(lectureId, questionId, userId);
+        QuestionDtos.QuestionDetailResponse response = questionService.getQuestionDetail(lectureId, questionId, userDetails.getUser().getId());
         return ResponseEntity.ok(response);
     }
 
@@ -74,9 +75,9 @@ public class QuestionController {
             @PathVariable Long lectureId,
             @PathVariable Long questionId,
             @PathVariable Long commentId,
-            @RequestParam Long userId
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        questionService.deleteComment(lectureId, questionId, commentId, userId);
+        questionService.deleteComment(lectureId, questionId, commentId, userDetails.getUser().getId());
         return ResponseEntity.ok("댓글 삭제 성공");
     }
 

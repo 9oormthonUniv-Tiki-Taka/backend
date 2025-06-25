@@ -13,6 +13,9 @@ import com.tikitaka.api.domain.user.User;
 import com.tikitaka.api.jwt.JwtTokenProvider;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.HashMap;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Component
@@ -32,7 +35,18 @@ public class CustomOAuth2SuccessHandler  implements AuthenticationSuccessHandler
 
         String token = jwtTokenProvider.createToken(user.getId().toString(), user.getRole());
 
-        response.setHeader("Authorization", "Bearer " + token);
-        response.sendRedirect("/login-success"); // 프론트엔드 라우팅 주소로 교체 가능
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", "SUCCESS");
+        result.put("token", token);
+        result.put("user", Map.of(
+            "id", user.getId(),
+            "email", user.getEmail(),
+            "role", user.getRole().name(),
+            "avatarURL", "temp",
+            "name", user.getName(),
+            "sub", user.getSub()
+        ));
+
+        new ObjectMapper().writeValue(response.getWriter(), result);
     }
 }
