@@ -4,7 +4,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,13 +13,14 @@ import com.tikitaka.api.service.user.UserService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
-
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/users/me")
 @RequiredArgsConstructor
 @Tag(name = "User API", description = "내 정보, 활동 내역, 포인트 등을 조회하는 API")
+@SecurityRequirement(name = "JWT")
 public class UserController {
 
     private final UserService userService;

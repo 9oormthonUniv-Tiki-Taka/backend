@@ -1,12 +1,12 @@
 package com.tikitaka.api.controller;
 
-import com.tikitaka.api.domain.user.UserRole;
 import com.tikitaka.api.dto.question.*;
 import com.tikitaka.api.jwt.CustomUserDetails;
 import com.tikitaka.api.service.question.QuestionService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/lectures/{lectureId}/questions")
 @Tag(name = "Question API", description = "질문 관련 기능 (조회, 등록, 삭제 등)")
+@SecurityRequirement(name = "JWT")
 @RequiredArgsConstructor
 public class QuestionController {
 
