@@ -11,8 +11,6 @@ import org.springframework.data.domain.Sort;
 import java.time.DayOfWeek;
 import java.util.List;
 
-import java.util.List;
-
 public interface LectureRepository extends JpaRepository<Lecture, Long> {
     List<Lecture> findByNameContainingIgnoreCase(String name);
 
