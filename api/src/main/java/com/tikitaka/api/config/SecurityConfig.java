@@ -28,21 +28,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // CSRF 비활성화 (H2 Console은 POST 요청 사용)
-                .headers(headers ->
-                        headers
-                                .addHeaderWriter(new StaticHeadersWriter("X-Frame-Options", "SAMEORIGIN"))
-                )
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/oauth2/**", "/login/**", "/h2-console/**").permitAll()
-                        .anyRequest().permitAll()
-                )
-                .oauth2Login(oauth -> oauth
-                        .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
-                        .successHandler(oAuth2SuccessHandler)
-                        .failureHandler(oAuth2FailureHandler)
-                )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .csrf(csrf -> csrf.disable())
+            .headers(headers -> headers.frameOptions().sameOrigin())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/auth/**", "/oauth2/**", "/login/**", "/h2-console/**").permitAll()
+                .requestMatchers("/api/**").authenticated()
+                .anyRequest().permitAll() 
+            )
+            .oauth2Login(oauth -> oauth
+                .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
+                .successHandler(oAuth2SuccessHandler)
+                .failureHandler(oAuth2FailureHandler)
+            ).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);;
 
         return http.build();
     }
@@ -53,5 +50,4 @@ public class SecurityConfig {
         return configuration.getAuthenticationManager();
     }
 }
-
 

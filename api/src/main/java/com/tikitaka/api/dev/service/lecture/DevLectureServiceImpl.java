@@ -1,4 +1,4 @@
-package com.tikitaka.api.dev.service;
+package com.tikitaka.api.dev.service.lecture;
 
 import com.tikitaka.api.dev.dto.LectureRequest;
 import com.tikitaka.api.domain.lecture.Lecture;
@@ -7,6 +7,8 @@ import com.tikitaka.api.dev.repository.DevLectureRepository;
 import com.tikitaka.api.dev.repository.DevUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.DayOfWeek;
 
 @Service
 @RequiredArgsConstructor
@@ -19,11 +21,12 @@ public class DevLectureServiceImpl implements DevLectureService {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        //DayOfWeek dayOfWeek = DayOfWeek.of(request.getDayOfWeek());
+
         Lecture lecture = Lecture.builder()
                 .name(request.getName())
                 .room(request.getRoom())
-                .dayOfWeek(request.getDayOfWeek())
-                .startTime(request.getStartTime())
+                .dayOfWeek(DayOfWeek.of(request.getDayOfWeek() + 1))
                 .user(user)
                 .build();
 

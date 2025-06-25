@@ -1,4 +1,4 @@
-package com.tikitaka.api.dev.service;
+package com.tikitaka.api.dev.service.question;
 
 import com.tikitaka.api.dev.dto.QuestionRequest;
 import com.tikitaka.api.domain.question.Question;
