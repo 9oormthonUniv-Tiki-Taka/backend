@@ -7,5 +7,6 @@ public class ReactResponse {
     private String targetType; // like | wonder | medal
     private Long targetId;
     private Long reactCount;
+    private Boolean reacted;
 }
 

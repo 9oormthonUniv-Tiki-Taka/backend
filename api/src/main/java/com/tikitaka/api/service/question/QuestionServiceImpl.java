@@ -70,7 +70,7 @@ public class QuestionServiceImpl implements QuestionService {
             }
 
             long medalCount = reactRepository.countByTargetAndType(q, ReactType.MEDAL);
-            dto.setMedal(medalCount > 0 ? "gold" : null);
+            dto.setMedal(medalCount > 0 ? "gold" : "0");
 
             return dto;
         }).collect(Collectors.toList());
@@ -89,7 +89,7 @@ public class QuestionServiceImpl implements QuestionService {
         Long likes = reactRepository.countByTargetAndType(question, ReactType.LIKE);
         Long wonder = reactRepository.countByTargetAndType(question, ReactType.WONDER);
         Long medalCount = reactRepository.countByTargetAndType(question, ReactType.MEDAL);
-        String medal = medalCount > 0 ? "gold" : null;
+        String medal = medalCount > 0 ? "gold" : "0";
 
         String questionUserNickname = "티키 " + (question.getUser().getId() % 100 + 1);
 
