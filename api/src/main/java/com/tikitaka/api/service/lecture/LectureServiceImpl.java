@@ -142,7 +142,7 @@ public class LectureServiceImpl implements LectureService {
 
             // 메달 유무
             boolean hasMedal = reactRepository.countByTargetAndType(question, ReactType.MEDAL) > 0;
-            dto.setMedal(hasMedal ? "🥇" : null);
+            dto.setMedal(hasMedal ? "🥇" : "0");
 
             return dto;
         }).collect(Collectors.toList());
