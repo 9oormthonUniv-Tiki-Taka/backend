@@ -68,16 +68,18 @@ public class SearchServiceImpl implements SearchService {
         return new SearchResponse("question", results);
     }
 
-   private SearchResponse searchLectures(String role, String query) {
+    private SearchResponse searchLectures(String role, String query) {
         List<Lecture> lectures = lectureRepository.findByNameContainingIgnoreCase(query);
 
         List<Object> results = lectures.stream().map(l -> {
+            String roomName = l.getRoom() != null ? l.getRoom().getName() : "unknown";
+
             if ("PROFESSOR".equals(role)) {
                 Long frequency = questionRepository.countByLecture(l);
                 return new SearchResponse.LectureResultForProfessor(
                         l.getLectureId().toString(),
                         l.getName(),
-                        l.getRoom(),
+                        roomName,   // String 타입으로 넣음
                         frequency.toString(),
                         l.getCreatedAt()
                 );
@@ -85,7 +87,7 @@ public class SearchServiceImpl implements SearchService {
                 return new SearchResponse.LectureResultForStudent(
                         l.getLectureId().toString(),
                         l.getName(),
-                        l.getRoom(),
+                        roomName,  // String 타입으로 넣음
                         l.getCreatedAt()
                 );
             }

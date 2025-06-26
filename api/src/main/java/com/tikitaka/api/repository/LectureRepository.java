@@ -18,4 +18,6 @@ public interface LectureRepository extends JpaRepository<Lecture, Long> {
 
     @Query("SELECT l FROM Lecture l WHERE (:dayOfWeek IS NULL OR l.dayOfWeek = :dayOfWeek)")
     List<Lecture> findAllByDayOfWeek(@Param("dayOfWeek") DayOfWeek dayOfWeek);
+
+    List<Lecture> findByRoom_IdAndDayOfWeek(Long roomId, DayOfWeek dayOfWeek);
 }

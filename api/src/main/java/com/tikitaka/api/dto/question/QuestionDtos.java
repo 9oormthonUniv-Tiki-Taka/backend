@@ -38,7 +38,9 @@ public class QuestionDtos {
         private LocalDateTime createdAt;
         private String medal;
         private Long likes;
+        private boolean likedByCurrentUser;
         private Long wonder;
+        private boolean wonderedByCurrentUser;
     }
 
     @Data

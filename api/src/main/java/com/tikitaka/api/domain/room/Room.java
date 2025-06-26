@@ -2,7 +2,7 @@ package com.tikitaka.api.domain.room;
 
 import java.util.List;
 
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.Id;
 
 import com.tikitaka.api.domain.common.BaseTimeEntity;
 import com.tikitaka.api.domain.lecture.Lecture;
@@ -24,7 +24,7 @@ public class Room extends BaseTimeEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     private String name;
 
