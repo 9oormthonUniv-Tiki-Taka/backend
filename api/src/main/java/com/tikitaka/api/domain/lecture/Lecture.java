@@ -4,6 +4,7 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 import com.tikitaka.api.domain.common.BaseTimeEntity;
+import com.tikitaka.api.domain.room.Room;
 import com.tikitaka.api.domain.user.User;
 
 import jakarta.persistence.*;
@@ -18,7 +19,9 @@ public class Lecture extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long lectureId;
-    private String room;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_id")
+    private Room room;
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)

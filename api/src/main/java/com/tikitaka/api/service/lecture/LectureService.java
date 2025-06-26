@@ -9,5 +9,5 @@ import java.util.List;
 public interface LectureService {
     LectureListResponse getLectureList(User user, String sort);
 
-    List<QuestionDtos.QuestionDetailDto> getLiveQuestions(Long lectureId);
+    List<QuestionDtos.QuestionDetailDto> getLiveQuestions(Long lectureId, User currentUser);
 }

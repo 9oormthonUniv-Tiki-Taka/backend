@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class LectureRequest {
-    private String room;
+    private Long roomId;
     private String name;
     private Long userId;
     private int dayOfWeek;

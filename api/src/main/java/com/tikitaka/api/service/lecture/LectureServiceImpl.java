@@ -79,7 +79,7 @@ public class LectureServiceImpl implements LectureService {
                     LectureDto dto = new LectureDto();
                     dto.setId(lecture.getLectureId());
                     dto.setName(lecture.getName());
-                    dto.setRoom(lecture.getRoom());
+                    dto.setRoom(lecture.getRoom() != null ? lecture.getRoom().getName() : null);  // 변경된 부분
                     dto.setCreatedAt(lecture.getCreatedAt());
 
                     if (user.getRole() == UserRole.PROFESSOR) {
@@ -93,6 +93,7 @@ public class LectureServiceImpl implements LectureService {
                 .collect(Collectors.toList());
     }
 
+
     private String getFrequencyLabel(Long questionCount) {
         if (questionCount >= 10) return "많음";
         if (questionCount >= 5) return "보통";
@@ -100,7 +101,7 @@ public class LectureServiceImpl implements LectureService {
     }
 
     @Override
-    public List<QuestionDetailDto> getLiveQuestions(Long lectureId) {
+    public List<QuestionDetailDto> getLiveQuestions(Long lectureId, User currentUser) {
         List<Question> questions = questionRepository.findByLecture_LectureIdOrderByCreatedAtDesc(lectureId);
 
         return questions.stream().map(question -> {
@@ -143,6 +144,17 @@ public class LectureServiceImpl implements LectureService {
             // 메달 유무
             boolean hasMedal = reactRepository.countByTargetAndType(question, ReactType.MEDAL) > 0;
             dto.setMedal(hasMedal ? "🥇" : "0");
+
+            boolean likedByCurrentUser = reactRepository
+                    .findByUserAndTargetAndType(currentUser, question, ReactType.LIKE)
+                    .isPresent();
+
+            boolean wonderedByCurrentUser = reactRepository
+                    .findByUserAndTargetAndType(currentUser, question, ReactType.WONDER)
+                    .isPresent();
+
+            dto.setLikedByCurrentUser(likedByCurrentUser);
+            dto.setWonderedByCurrentUser(wonderedByCurrentUser);
 
             return dto;
         }).collect(Collectors.toList());

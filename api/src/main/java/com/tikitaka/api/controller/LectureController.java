@@ -1,5 +1,6 @@
 package com.tikitaka.api.controller;
 
+import com.tikitaka.api.domain.user.User;
 import com.tikitaka.api.dto.lecture.LectureListResponse;
 import com.tikitaka.api.dto.question.QuestionDtos.QuestionDetailDto;
 import com.tikitaka.api.jwt.CustomUserDetails;
@@ -40,8 +41,13 @@ public class LectureController {
             description = "특정 강의의 실시간 질문 및 답변 목록을 조회합니다."
     )
     @GetMapping("/{lectureId}/live/questions")
-    public Map<String, List<QuestionDetailDto>> getLiveQuestions(@PathVariable Long lectureId) {
-        List<QuestionDetailDto> questions = lectureService.getLiveQuestions(lectureId);
+    public Map<String, List<QuestionDetailDto>> getLiveQuestions(
+            @PathVariable Long lectureId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        User currentUser = userDetails.getUser();
+        List<QuestionDetailDto> questions = lectureService.getLiveQuestions(lectureId, currentUser);
         return Map.of("questions", questions);
     }
+
 }
