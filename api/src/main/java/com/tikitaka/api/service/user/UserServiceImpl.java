@@ -37,8 +37,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
-        Long spend = pointTransactionRepository.countByUserIdAndType(userId, PointType.SPEND);
-        Long earn = pointTransactionRepository.countByUserIdAndType(userId, PointType.EARN);
+        Long spend = pointTransactionRepository.sumByUserIdAndType(userId, PointType.SPEND);
+        Long earn = pointTransactionRepository.sumByUserIdAndType(userId, PointType.EARN);
 
         UserInfoResponse.UserDto userDto = new UserInfoResponse.UserDto();
         userDto.setAvatar(user.getAvatarUrl());
@@ -80,8 +80,8 @@ public class UserServiceImpl implements UserService {
 
     public UserPointResponse toUserPointResponse(User user, Page<PointTransaction> transactions) {
         UserPointResponse response = new UserPointResponse();
-        Long earn = pointTransactionRepository.countByUserIdAndType(user.getId(), PointType.EARN);
-        Long spend = pointTransactionRepository.countByUserIdAndType(user.getId(), PointType.SPEND);
+        Long earn = pointTransactionRepository.sumByUserIdAndType(user.getId(), PointType.EARN);
+        Long spend = pointTransactionRepository.sumByUserIdAndType(user.getId(), PointType.SPEND);
         response.setPoint(earn - spend);
 
         Page<UserPointResponse.PointDto> pointDtos = transactions.map(pt -> {
