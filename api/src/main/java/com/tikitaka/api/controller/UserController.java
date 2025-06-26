@@ -37,7 +37,7 @@ public class UserController {
 
     @Operation(
             summary = "내 포인트 내역 조회",
-            description = "내 포인트 적립/차감 내역을 유형별로 페이징 조회합니다. (예: all, gain, use)"
+            description = "내 포인트 적립/차감 내역을 유형별로 페이징 조회합니다. (TYPE= all,spend,earn)"
     )
     @GetMapping("/points")
     public ResponseEntity<UserPointResponse> getPoints(@AuthenticationPrincipal CustomUserDetails userDetails,
