@@ -1,27 +1,22 @@
 package com.tikitaka.api.service.socket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tikitaka.api.dto.socket.AnswerSocketRequest;
-import com.tikitaka.api.dto.socket.AnsweredSocketRequest;
-import com.tikitaka.api.dto.socket.LiveSocketRequest;
-import com.tikitaka.api.dto.socket.QuestionSocketRequest;
-import com.tikitaka.api.dto.socket.ReactSocketRequest;
-import com.tikitaka.api.repository.LectureRepository;
-import com.tikitaka.api.repository.QuestionRepository;
-import com.tikitaka.api.repository.UserRepository;
-import com.tikitaka.api.repository.CommentRepository;
-import com.tikitaka.api.repository.ReactRepository;
-
-import com.tikitaka.api.domain.user.User;
+import com.tikitaka.api.domain.comment.Comment;
 import com.tikitaka.api.domain.lecture.Lecture;
-import com.tikitaka.api.domain.react.*;
-import com.tikitaka.api.domain.question.*;
-import com.tikitaka.api.domain.comment.*;
-
+import com.tikitaka.api.domain.question.Question;
+import com.tikitaka.api.domain.question.QuestionStatus;
+import com.tikitaka.api.domain.react.React;
+import com.tikitaka.api.domain.react.ReactType;
+import com.tikitaka.api.domain.report.*;
+import com.tikitaka.api.domain.user.User;
+import com.tikitaka.api.dto.socket.*;
+import com.tikitaka.api.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -32,6 +27,7 @@ public class SocketServiceImpl implements SocketService {
     private final QuestionRepository questionRepository;
     private final CommentRepository commentRepository;
     private final ReactRepository reactRepository;
+    private final ReportRepository reportRepository;
 
     @Override
     @Transactional
@@ -53,6 +49,11 @@ public class SocketServiceImpl implements SocketService {
                 AnsweredSocketRequest req = convert(message, AnsweredSocketRequest.class);
                 handleAnswered(req);
             }
+            case "report" -> {
+                ReportSocketRequest req = convert(message, ReportSocketRequest.class);
+                handleReport(req, userId);
+            }
+            default -> log.warn("Unknown socket message type: {}", message.getType());
         }
     }
 
@@ -64,7 +65,7 @@ public class SocketServiceImpl implements SocketService {
     private void handleQuestion(QuestionSocketRequest request, Long userId, Long lectureId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
+
         Lecture lecture = lectureRepository.findById(lectureId)
                 .orElseThrow(() -> new RuntimeException("Lecture not found with id: " + lectureId));
 
@@ -80,80 +81,85 @@ public class SocketServiceImpl implements SocketService {
     private void handleAnswer(AnswerSocketRequest request, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
+
         Question question = questionRepository.findById(request.getQuestionId())
                 .orElseThrow(() -> new RuntimeException("Question not found with id: " + request.getQuestionId()));
-        
+
         Comment comment = Comment.builder()
                 .responder(user)
                 .question(question)
                 .content(request.getContent())
-                .question(question)
                 .build();
-        
         commentRepository.save(comment);
-    }
 
-    private void handleReaction(ReactSocketRequest requestReactSocketRequest, String type, Long userId) {
-        switch (type) {
-            case "like" -> handleLike(requestReactSocketRequest, userId);
-            case "wonder" -> handleWonder(requestReactSocketRequest, userId);
-            case "medal" -> handleMedal(requestReactSocketRequest, userId);
-        }
+        question.updateStatus(QuestionStatus.ANSWERED);
     }
 
     private void handleAnswered(AnsweredSocketRequest request) {
         Question question = questionRepository.findById(request.getQuestionId())
                 .orElseThrow(() -> new RuntimeException("Question not found with id: " + request.getQuestionId()));
-        
+
         question.updateStatus(QuestionStatus.ANSWERED);
     }
 
-    private void handleLike(ReactSocketRequest request, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
-        Question question = questionRepository.findById(request.getQuestionId())
-                .orElseThrow(() -> new RuntimeException("Question not found with id: " + userId));
-
-        React react = React.builder()
-                .user(user)
-                .target(question)
-                .type(ReactType.LIKE)
-                .build();
-        
-        reactRepository.save(react);       
+    private void handleReaction(ReactSocketRequest request, String type, Long userId) {
+        ReactType reactType;
+        switch (type) {
+            case "like" -> reactType = ReactType.LIKE;
+            case "wonder" -> reactType = ReactType.WONDER;
+            case "medal" -> reactType = ReactType.MEDAL;
+            default -> throw new IllegalArgumentException("Invalid reaction type: " + type);
+        }
+        toggleReaction(request, userId, reactType);
     }
 
-    private void handleWonder(ReactSocketRequest request, Long userId) {
+    private void toggleReaction(ReactSocketRequest request, Long userId, ReactType reactType) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
-        Question question = questionRepository.findById(request.getQuestionId())
-                .orElseThrow(() -> new RuntimeException("Question not found with id: " + userId));
 
-        React react = React.builder()
-                .user(user)
-                .target(question)
-                .type(ReactType.WONDER)
-                .build();
-        
-        reactRepository.save(react);       
+        Question question = questionRepository.findById(request.getQuestionId())
+                .orElseThrow(() -> new RuntimeException("Question not found with id: " + request.getQuestionId()));
+
+        Optional<React> existing = reactRepository.findByUserAndTargetAndType(user, question, reactType);
+
+        if (existing.isPresent()) {
+            reactRepository.delete(existing.get());
+        } else {
+            React react = React.builder()
+                    .user(user)
+                    .target(question)
+                    .type(reactType)
+                    .build();
+            reactRepository.save(react);
+        }
     }
 
-    private void handleMedal(ReactSocketRequest request, Long userId) {
-        User user = userRepository.findById(userId)
+    @Transactional
+    public void handleReport(ReportSocketRequest request, Long userId) {
+        User reporter = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
-        Question question = questionRepository.findById(request.getQuestionId())
-                .orElseThrow(() -> new RuntimeException("Question not found with id: " + userId));
 
-        React react = React.builder()
-                .user(user)
-                .target(question)
-                .type(ReactType.MEDAL)
+        Question question = questionRepository.findById(request.getTargetId())
+                .orElseThrow(() -> new RuntimeException("Question not found with id: " + request.getTargetId()));
+
+        boolean alreadyReported = reportRepository.existsByReporterAndTargetTypeAndTargetId(
+                reporter, ReportType.QUESTION, request.getTargetId());
+
+        if (alreadyReported) {
+            throw new RuntimeException("You have already reported this question.");
+        }
+
+        Report report = Report.builder()
+                .reporter(reporter)
+                .reportedUser(question.getUser())
+                .targetType(ReportType.QUESTION)
+                .targetId(request.getTargetId())
+                .reason(request.getReason())
+                .status(ReportStatus.신고완료)
                 .build();
-        
-        reactRepository.save(react);      
+
+        reportRepository.save(report);
+
+        log.info("User {} reported question {} successfully.", userId, request.getTargetId());
     }
 }
