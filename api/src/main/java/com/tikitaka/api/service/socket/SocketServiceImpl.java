@@ -1,14 +1,16 @@
 package com.tikitaka.api.service.socket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tikitaka.api.domain.comment.Comment;
+import com.tikitaka.api.domain.lecture.Lecture;
+import com.tikitaka.api.domain.question.Question;
+import com.tikitaka.api.domain.question.QuestionStatus;
+import com.tikitaka.api.domain.react.React;
+import com.tikitaka.api.domain.react.ReactType;
+import com.tikitaka.api.domain.report.*;
+import com.tikitaka.api.domain.user.User;
 import com.tikitaka.api.dto.socket.*;
 import com.tikitaka.api.repository.*;
-import com.tikitaka.api.domain.user.User;
-import com.tikitaka.api.domain.lecture.Lecture;
-import com.tikitaka.api.domain.react.*;
-import com.tikitaka.api.domain.question.*;
-import com.tikitaka.api.domain.comment.*;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ public class SocketServiceImpl implements SocketService {
     private final QuestionRepository questionRepository;
     private final CommentRepository commentRepository;
     private final ReactRepository reactRepository;
+    private final ReportRepository reportRepository;
 
     @Override
     @Transactional
@@ -46,6 +49,11 @@ public class SocketServiceImpl implements SocketService {
                 AnsweredSocketRequest req = convert(message, AnsweredSocketRequest.class);
                 handleAnswered(req);
             }
+            case "report" -> {
+                ReportSocketRequest req = convert(message, ReportSocketRequest.class);
+                handleReport(req, userId);
+            }
+            default -> log.warn("Unknown socket message type: {}", message.getType());
         }
     }
 
@@ -95,11 +103,14 @@ public class SocketServiceImpl implements SocketService {
     }
 
     private void handleReaction(ReactSocketRequest request, String type, Long userId) {
+        ReactType reactType;
         switch (type) {
-            case "like" -> toggleReaction(request, userId, ReactType.LIKE);
-            case "wonder" -> toggleReaction(request, userId, ReactType.WONDER);
-            case "medal" -> toggleReaction(request, userId, ReactType.MEDAL);
+            case "like" -> reactType = ReactType.LIKE;
+            case "wonder" -> reactType = ReactType.WONDER;
+            case "medal" -> reactType = ReactType.MEDAL;
+            default -> throw new IllegalArgumentException("Invalid reaction type: " + type);
         }
+        toggleReaction(request, userId, reactType);
     }
 
     private void toggleReaction(ReactSocketRequest request, Long userId, ReactType reactType) {
@@ -121,5 +132,34 @@ public class SocketServiceImpl implements SocketService {
                     .build();
             reactRepository.save(react);
         }
+    }
+
+    @Transactional
+    public void handleReport(ReportSocketRequest request, Long userId) {
+        User reporter = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        Question question = questionRepository.findById(request.getTargetId())
+                .orElseThrow(() -> new RuntimeException("Question not found with id: " + request.getTargetId()));
+
+        boolean alreadyReported = reportRepository.existsByReporterAndTargetTypeAndTargetId(
+                reporter, ReportType.QUESTION, request.getTargetId());
+
+        if (alreadyReported) {
+            throw new RuntimeException("You have already reported this question.");
+        }
+
+        Report report = Report.builder()
+                .reporter(reporter)
+                .reportedUser(question.getUser())
+                .targetType(ReportType.QUESTION)
+                .targetId(request.getTargetId())
+                .reason(request.getReason())
+                .status(ReportStatus.신고완료)
+                .build();
+
+        reportRepository.save(report);
+
+        log.info("User {} reported question {} successfully.", userId, request.getTargetId());
     }
 }

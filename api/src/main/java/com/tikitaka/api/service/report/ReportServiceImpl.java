@@ -26,56 +26,66 @@ public class ReportServiceImpl implements ReportService {
     private final QuestionRepository questionRepository;
     private final CommentRepository commentRepository;
 
-
     @Override
     @Transactional
     public void reportContent(Long userId, ReportRequest request) {
 
         switch (request.getTargetType()) {
-            case "question" -> {
-                handleQuestionReport(userId, request);
-            }
-            case "comment" -> {
-                handleCommentReport(userId, request);
-            }
+            case "question" -> handleQuestionReport(userId, request);
+            case "comment" -> handleCommentReport(userId, request);
+            default -> throw new IllegalArgumentException("Invalid report target type: " + request.getTargetType());
         }
     }
 
     private void handleQuestionReport(Long userId, ReportRequest request) {
         User reporter = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));        
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
-        Question question = questionRepository.findById(request.getTargetId())
-                .orElseThrow(() -> new RuntimeException("Question not found with id: " + request.getTargetId()));
-        
+        Long targetId = request.getTargetId();
+        ReportType type = ReportType.QUESTION;
+
+        if (reportRepository.existsByReporterAndTargetTypeAndTargetId(reporter, type, targetId)) {
+            throw new RuntimeException("이미 해당 질문을 신고하셨습니다.");
+        }
+
+        Question question = questionRepository.findById(targetId)
+                .orElseThrow(() -> new RuntimeException("Question not found with id: " + targetId));
 
         Report report = Report.builder()
                 .reporter(reporter)
                 .reportedUser(question.getUser())
-                .targetType(ReportType.QUESTION)
-                .targetId(request.getTargetId())
+                .targetType(type)
+                .targetId(targetId)
                 .reason(request.getReason())
                 .status(ReportStatus.신고완료)
                 .build();
 
-        Report saved = reportRepository.save(report);
+        reportRepository.save(report);
     }
 
     private void handleCommentReport(Long userId, ReportRequest request) {
         User reporter = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        
-        Comment comment = commentRepository.findById(request.getTargetId())
-                .orElseThrow(() -> new RuntimeException("Comment not found with id: " + request.getTargetId()));
-        
+
+        Long targetId = request.getTargetId();
+        ReportType type = ReportType.COMMENT;
+
+        if (reportRepository.existsByReporterAndTargetTypeAndTargetId(reporter, type, targetId)) {
+            throw new RuntimeException("이미 해당 댓글을 신고하셨습니다.");
+        }
+
+        Comment comment = commentRepository.findById(targetId)
+                .orElseThrow(() -> new RuntimeException("Comment not found with id: " + targetId));
+
         Report report = Report.builder()
                 .reporter(reporter)
                 .reportedUser(comment.getResponder())
-                .targetType(ReportType.COMMENT)
-                .targetId(request.getTargetId())
+                .targetType(type)
+                .targetId(targetId)
                 .reason(request.getReason())
                 .status(ReportStatus.신고완료)
                 .build();
+
         reportRepository.save(report);
-    }   
+    }
 }
