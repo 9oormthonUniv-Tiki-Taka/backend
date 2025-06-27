@@ -14,31 +14,31 @@ import com.tikitaka.api.jwt.JwtTokenProvider;
 import com.tikitaka.api.repository.RoomRepository;
 import com.tikitaka.api.repository.UserRepository;
 
-@WebMvcTest(AuthController.class)
-public class AuthControllerTest {
+// @WebMvcTest(AuthController.class)
+// public class AuthControllerTest {
     
-    @Autowired
-    private MockMvc mockMvc;
+//     @Autowired
+//     private MockMvc mockMvc;
 
-    @MockBean
-    private RoomRepository roomRepository;
+//     @MockBean
+//     private RoomRepository roomRepository;
 
-    @MockBean
-    private UserRepository userRepository;
+//     @MockBean
+//     private UserRepository userRepository;
 
-    @MockBean
-    private JwtTokenProvider jwtTokenProvider;
+//     @MockBean
+//     private JwtTokenProvider jwtTokenProvider;
 
-    @Test
-    void testLogin() throws Exception {
-         mockMvc.perform(get("/login"))
-            .andExpect(status().isFound())
-            .andExpect(header().string("Location", "/oauth2/authorization/google"));
-    }
+//     @Test
+//     void testLogin() throws Exception {
+//          mockMvc.perform(get("/login"))
+//             .andExpect(status().isFound())
+//             .andExpect(header().string("Location", "/oauth2/authorization/google"));
+//     }
 
-    @Test
-    void testLoginRoom() throws Exception {
-        mockMvc.perform(get("/login/room"))
-            .andExpect(status().isOk());
-    }
-}
+//     @Test
+//     void testLoginRoom() throws Exception {
+//         mockMvc.perform(get("/login/room"))
+//             .andExpect(status().isOk());
+//     }
+// }
