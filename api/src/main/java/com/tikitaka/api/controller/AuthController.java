@@ -3,16 +3,20 @@ package com.tikitaka.api.controller;
 import java.net.URI;
 import java.time.Duration;
 import java.util.Map;
+import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tikitaka.api.domain.room.Room;
 import com.tikitaka.api.domain.user.User;
 import com.tikitaka.api.domain.user.UserRole;
 import com.tikitaka.api.dto.verify.OAuth2VerificationData;
 import com.tikitaka.api.jwt.JwtTokenProvider;
+import com.tikitaka.api.repository.RoomRepository;
 import com.tikitaka.api.repository.UserRepository;
 import com.tikitaka.api.service.email.EmailService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
@@ -21,15 +25,18 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
 
+    private final HttpServletRequest request;
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final EmailService emailService;
+    private final RoomRepository roomRepository;
 
    @GetMapping("/login")
     public ResponseEntity<Void> login() {
@@ -37,6 +44,48 @@ public class AuthController {
         headers.setLocation(URI.create("/oauth2/authorization/google"));
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
+
+    @GetMapping("/login/room")
+    public ResponseEntity<?> loginRoom() {
+        String clientIp = request.getRemoteAddr();
+        
+        Optional<Room> roomOptional = roomRepository.findByIp(clientIp);
+        if (roomOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("해당 IP는 등록된 IP가 아닙니다.");
+        }
+
+        Room room = roomOptional.get();
+
+        String sub = "room-" + room.getId() + "-" + room.getIp();
+        User user = userRepository.findBySub(sub).orElseGet(() -> {
+            User newUser = User.builder()
+                    .email("room-" + room.getId() + "@tikitaka.com")
+                    .name("Room " + room.getId())
+                    .sub(sub)
+                    .role(UserRole.ROOM)
+                    .build();
+            return userRepository.save(newUser);
+        });
+
+        String token = jwtTokenProvider.createToken(sub, user.getRole());
+
+        ResponseCookie cookie = ResponseCookie.from("Authorization", token)
+                                                .httpOnly(true)
+                                                .secure(false)
+                                                .sameSite("Lax")
+                                                .path("/")
+                                                .maxAge(Duration.ofDays(1))
+                                                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
+        return ResponseEntity.ok().headers(headers).body(Map.of(
+                "token", token,
+                "sub", user.getSub(),
+                "role", user.getRole().name()
+        ));
+    }
+
 
     @PostMapping("/auth/code")
     public ResponseEntity<?> sendVerificationCode(@RequestParam String sub,

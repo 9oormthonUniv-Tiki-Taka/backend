@@ -20,8 +20,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     // 이메일로 유저를 찾아서 UserDetails 형태로 반환
     public UserDetails loadUserByUsername(String sub) throws UsernameNotFoundException {
         User user = userRepository.findBySub(sub)
-                .orElseThrow(() -> new UsernameNotFoundException("해당 이메일의 유저를 찾을 수 없습니다: " + sub));
+                .orElseThrow(() -> new UsernameNotFoundException("해당 Sub의 유저를 찾을 수 없습니다: " + sub));
 
+        return new CustomUserDetails(user);
+    }
+
+    public UserDetails createUserDetails(User user) {
         return new CustomUserDetails(user);
     }
 }
