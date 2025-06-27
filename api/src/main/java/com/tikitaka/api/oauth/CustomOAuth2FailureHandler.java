@@ -3,6 +3,7 @@ package com.tikitaka.api.oauth;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
@@ -10,12 +11,11 @@ import org.springframework.stereotype.Component;
 import com.tikitaka.api.exception.NeedsVerificationException;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.HashMap;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 public class CustomOAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler {
+
+    private final String redirectUrl = "http://localhost:5173/oauth/callback";
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request,
@@ -25,19 +25,17 @@ public class CustomOAuth2FailureHandler extends SimpleUrlAuthenticationFailureHa
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        Map<String, Object> result = new HashMap<>();
         if (exception instanceof NeedsVerificationException) {
-            String sub = ((NeedsVerificationException) exception).getSub();        
-            result.put("status", "NEEDS_VERIFICATION");
-            result.put("sub", sub);
+            String sub = ((NeedsVerificationException) exception).getSub();
             response.setStatus(HttpServletResponse.SC_OK);
+            response.sendRedirect(redirectUrl 
+                                + "?sub=" + sub
+                                + "&message=need_verification");
         }
         else {
-            result.put("status", "ERROR");
-            result.put("message", "인증에 실패했습니다.");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.sendRedirect(redirectUrl 
+                                + "?message=failure");
         }
-
-        new ObjectMapper().writeValue(response.getWriter(), result);
     }
 }

@@ -16,15 +16,13 @@ import com.tikitaka.api.jwt.JwtTokenProvider;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Map;
-import java.util.HashMap;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class CustomOAuth2SuccessHandler  implements AuthenticationSuccessHandler {
 
+    private final String redirectUrl = "http://localhost:5173/oauth/callback";
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
@@ -45,20 +43,10 @@ public class CustomOAuth2SuccessHandler  implements AuthenticationSuccessHandler
                                                 .path("/")
                                                 .maxAge(Duration.ofDays(1))
                                                 .build();
-
         response.addHeader("Set-Cookie", cookie.toString());
-        Map<String, Object> result = new HashMap<>();
-        result.put("status", "SUCCESS");
-        result.put("token", token);
-        result.put("user", Map.of(
-            "id", user.getId(),
-            "email", user.getEmail(),
-            "role", user.getRole().name(),
-            "avatarURL", "temp",
-            "name", user.getName(),
-            "sub", user.getSub()
-        ));
-        response.setContentType("application/json;charset=UTF-8");
-        new ObjectMapper().writeValue(response.getWriter(), result);
+        response.sendRedirect(redirectUrl
+                            + "?sub=" + user.getSub()
+                            + "&token=" + token
+                            + "&message=success");
     }
 }
