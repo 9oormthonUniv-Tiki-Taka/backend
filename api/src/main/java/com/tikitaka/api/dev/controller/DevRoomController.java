@@ -27,11 +27,4 @@ public class DevRoomController {
         roomService.registerRoom(request);
         return ResponseEntity.ok().build();
     }
-
-    @Operation(summary = "강의실 강의 추가", description = "개발용 강의실 강의 추가 API입니다.")
-    @PostMapping("/{roomId}/lectures/{lectureId}")
-    public ResponseEntity<Void> updateRoom(@PathVariable Long roomId, @PathVariable Long lectureId) {
-        roomService.updateRoom(roomId, lectureId);
-        return ResponseEntity.ok().build();
-    }
 }
