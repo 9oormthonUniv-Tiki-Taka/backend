@@ -32,4 +32,8 @@ public class Room extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Lecture> lecture;
+
+    public void setLecture(List<Lecture> lecture) {
+        this.lecture = lecture;
+    }
 }
