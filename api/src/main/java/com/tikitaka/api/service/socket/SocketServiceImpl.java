@@ -84,7 +84,6 @@ public class SocketServiceImpl implements SocketService {
                 .build();
         commentRepository.save(comment);
 
-        // ✅ 자동으로 질문 상태를 답변 완료로 변경
         question.updateStatus(QuestionStatus.ANSWERED);
     }
 
@@ -113,14 +112,14 @@ public class SocketServiceImpl implements SocketService {
         Optional<React> existing = reactRepository.findByUserAndTargetAndType(user, question, reactType);
 
         if (existing.isPresent()) {
-            reactRepository.delete(existing.get()); // 리액션 취소
+            reactRepository.delete(existing.get());
         } else {
             React react = React.builder()
                     .user(user)
                     .target(question)
                     .type(reactType)
                     .build();
-            reactRepository.save(react); // 리액션 등록
+            reactRepository.save(react);
         }
     }
 }
