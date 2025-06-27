@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/rooms")
 @Tag(name = "Room API", description = "강의실 상태 확인 live/idle")
 @SecurityRequirement(name = "JWT")
 public class RoomController {
