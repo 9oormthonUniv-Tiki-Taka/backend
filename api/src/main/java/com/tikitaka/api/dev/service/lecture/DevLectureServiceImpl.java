@@ -30,7 +30,7 @@ public class DevLectureServiceImpl implements DevLectureService {
 
         Lecture lecture = Lecture.builder()
                 .name(request.getName())
-                .room(room)  // 여기서 room 할당
+                .room(room)
                 .dayOfWeek(DayOfWeek.of(request.getDayOfWeek() + 1))
                 .user(user)
                 .build();
