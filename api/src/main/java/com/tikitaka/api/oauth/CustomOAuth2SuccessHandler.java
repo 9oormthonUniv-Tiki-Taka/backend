@@ -38,8 +38,8 @@ public class CustomOAuth2SuccessHandler  implements AuthenticationSuccessHandler
 
         ResponseCookie cookie = ResponseCookie.from("Authorization", token)
                                                 .httpOnly(true)
-                                                .secure(false)
-                                                .sameSite("Lax")
+                                                .secure(true)
+                                                .sameSite("None")
                                                 .path("/")
                                                 .maxAge(Duration.ofDays(1))
                                                 .build();
