@@ -48,7 +48,7 @@ jobs:
         run: |
           scp -i key.pem -o StrictHostKeyChecking=no \
             api/build/libs/*.jar \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/app.jar
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/app-prod.jar
 
       - name: 🧨 SSH into EC2 and restart application (MySQL profile)
         env:
@@ -83,7 +83,7 @@ jobs:
               export MYSQL_PASSWORD="${MYSQL_PASSWORD}"
               export MYSQL_DATABASE="${MYSQL_DATABASE}"
 
-              nohup java -jar /home/${{ secrets.SSH_USER }}/app.jar/api-0.0.1-SNAPSHOT.jar \
+              nohup java -jar /home/${{ secrets.SSH_USER }}/app-prod.jar/api-0.0.1-SNAPSHOT.jar \
                 --spring.profiles.active=mysql > app.log 2>&1 &
 
               echo "✅ Deployed with MySQL!"
