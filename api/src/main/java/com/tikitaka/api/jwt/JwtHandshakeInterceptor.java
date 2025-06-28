@@ -1,7 +1,5 @@
 package com.tikitaka.api.jwt;
 
-import com.tikitaka.api.user.service.CustomUserDetailsService;
-import com.tikitaka.api.user.model.CustomUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.ServerHttpRequest;
