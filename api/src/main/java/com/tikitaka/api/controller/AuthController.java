@@ -71,8 +71,8 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("Authorization", token)
                                                 .httpOnly(true)
-                                                .secure(false)
-                                                .sameSite("Lax")
+                                                .secure(true)
+                                                .sameSite("None")
                                                 .path("/")
                                                 .maxAge(Duration.ofDays(1))
                                                 .build();
@@ -143,8 +143,8 @@ public class AuthController {
 
                 ResponseCookie cookie = ResponseCookie.from("Authorization", token)
                                                         .httpOnly(true)
-                                                        .secure(false)
-                                                        .sameSite("Lax")
+                                                        .secure(true)
+                                                        .sameSite("None")
                                                         .path("/")
                                                         .maxAge(Duration.ofDays(1))
                                                         .build();
