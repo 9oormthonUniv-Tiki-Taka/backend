@@ -30,7 +30,6 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
         if (request instanceof ServletServerHttpRequest servletRequest) {
             HttpServletRequest httpRequest = servletRequest.getServletRequest();
             String token = jwtTokenProvider.resolveToken(httpRequest);
-
             if (token != null && token.split("\\.").length == 3 && jwtTokenProvider.validateToken(token)) {
                 String sub = jwtTokenProvider.getUserIdFromToken(token);
                 CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(sub);

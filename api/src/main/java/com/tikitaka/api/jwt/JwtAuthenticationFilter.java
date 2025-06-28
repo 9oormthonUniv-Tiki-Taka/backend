@@ -30,6 +30,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
         if (path.startsWith("/api/lectures/") && path.contains("/live")) {
+
+            System.out.println("🔥 WebSocket Handshake Interceptor: " + request);
             filterChain.doFilter(request, response);
             return;
         }
