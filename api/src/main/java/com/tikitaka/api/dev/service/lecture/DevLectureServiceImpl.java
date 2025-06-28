@@ -1,5 +1,6 @@
 package com.tikitaka.api.dev.service.lecture;
 
+import com.tikitaka.api.dev.dto.LectureDetailRequest;
 import com.tikitaka.api.dev.dto.LectureRequest;
 import com.tikitaka.api.dev.dto.LectureResponse;
 import com.tikitaka.api.dev.repository.DevLectureRepository;
@@ -56,5 +57,24 @@ public class DevLectureServiceImpl implements DevLectureService {
                 })
                 .collect(Collectors.toList());
     }
-}
 
+    @Override
+    public void registerLectureDetails(LectureDetailRequest request) {
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Room room = roomRepository.findById(request.getRoomId())
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+
+        Lecture lecture = Lecture.builder()
+                .name(request.getName())
+                .room(room)
+                .dayOfWeek(DayOfWeek.of(request.getDayOfWeek() + 1))
+                .startTime(request.getStartTime())
+                .endTime(request.getEndTime())
+                .user(user)
+                .build();
+
+        lectureRepository.save(lecture);
+    }
+}

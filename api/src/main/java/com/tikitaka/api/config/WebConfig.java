@@ -11,7 +11,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:5173",
                                             "https://api.tikitaka.o-r.kr",
-                                            "https://www.tikitaka.o-r.kr")
+                                            "https://www.tikitaka.o-r.kr",
+                                            "https://dev.tikitaka.o-r.kr")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
                 .allowCredentials(true);
     }

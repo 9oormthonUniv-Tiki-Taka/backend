@@ -1,5 +1,6 @@
 package com.tikitaka.api.dev.controller;
 
+import com.tikitaka.api.dev.dto.LectureDetailRequest;
 import com.tikitaka.api.dev.dto.LectureRequest;
 import com.tikitaka.api.dev.dto.LectureResponse;
 import com.tikitaka.api.dev.service.lecture.DevLectureService;
@@ -30,5 +31,11 @@ public class DevLectureController {
         List<LectureResponse> lectures = lectureService.getAllLectures();
         return ResponseEntity.ok(lectures);
     }
-}
 
+    @Operation(summary = "강의 세부 등록", description = "개발용 강의 세부 등록 API입니다.")
+    @PostMapping("/details")
+    public ResponseEntity<Void> registerLectureDetails(@RequestBody LectureDetailRequest request) {
+        lectureService.registerLectureDetails(request);
+        return ResponseEntity.ok().build();
+    }
+}
