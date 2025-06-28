@@ -33,6 +33,7 @@ jobs:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           GPT_KEY: ${{ secrets.GPT_KEY }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
         working-directory: api
 
       - name: 🔐 Create SSH private key
@@ -44,7 +45,7 @@ jobs:
         run: |
           scp -i key.pem -o StrictHostKeyChecking=no \
             api/build/libs/*.jar \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/app.jar
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/app-dev.jar
 
       - name: 🧨 SSH into EC2 and restart application
         env:
@@ -55,14 +56,15 @@ jobs:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           GPT_KEY: ${{ secrets.GPT_KEY }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
         run: |
           ssh -i key.pem -o StrictHostKeyChecking=no \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << EOF
               echo "🛑 Killing existing Java process (if any)..."
-              pkill -f 'java' || true
-      
+              ps aux | grep 'app-dev.jar' | grep -v grep | awk '{print $2}' | xargs kill
+
               echo "🚀 Starting new app with environment variables..."
-      
+
               export GMAIL_PASSWORD="${GMAIL_PASSWORD}"
               export GMAIL_SMTP_HOST="${GMAIL_SMTP_HOST}"
               export GMAIL_SMTP_PORT="${GMAIL_SMTP_PORT}"
@@ -70,8 +72,10 @@ jobs:
               export GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID}"
               export GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET}"
               export GPT_KEY="${GPT_KEY}"
-      
-              nohup java -jar /home/${{ secrets.SSH_USER }}/app.jar/api-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
-      
-              echo "✅ Deployed!"
+              export JWT_SECRET_KEY="${JWT_SECRET_KEY}"
+
+              nohup java -jar /home/${{ secrets.SSH_USER }}/app-dev.jar/api-0.0.1-SNAPSHOT.jar \
+                --spring.profiles.active=h2 > app-dev.log 2>&1 &
+
+              echo "✅ Deployed with H2!"
           EOF

@@ -1,15 +1,19 @@
 package com.tikitaka.api.dev.service.question;
 
 import com.tikitaka.api.dev.dto.QuestionRequest;
-import com.tikitaka.api.domain.question.Question;
-import com.tikitaka.api.domain.question.QuestionStatus;
-import com.tikitaka.api.domain.lecture.Lecture;
-import com.tikitaka.api.domain.user.User;
+import com.tikitaka.api.dev.dto.QuestionResponse;
 import com.tikitaka.api.dev.repository.DevLectureRepository;
 import com.tikitaka.api.dev.repository.DevQuestionRepository;
 import com.tikitaka.api.dev.repository.DevUserRepository;
+import com.tikitaka.api.domain.lecture.Lecture;
+import com.tikitaka.api.domain.question.Question;
+import com.tikitaka.api.domain.question.QuestionStatus;
+import com.tikitaka.api.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,4 +38,19 @@ public class DevQuestionServiceImpl implements DevQuestionService {
 
         questionRepository.save(question);
     }
+
+    @Override
+    public List<QuestionResponse> getAllQuestions() {
+        return questionRepository.findAll().stream()
+                .map(question -> {
+                    QuestionResponse response = new QuestionResponse();
+                    response.setId(question.getQuestionId());
+                    response.setContent(question.getContent());
+                    response.setStatus(question.getStatus().name());
+                    response.setLectureId(question.getLecture().getLectureId());
+                    return response;
+                })
+                .collect(Collectors.toList());
+    }
 }
+
