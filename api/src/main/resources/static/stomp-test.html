@@ -13,12 +13,12 @@
 
   <script>
     const lectureId = 4;
-    const token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMTQ1NTY1ODMyOTc4MDkyMzcxNjYiLCJyb2xlIjoiU1RVREVOVCIsImlhdCI6MTc1MTE0MzM0NCwiZXhwIjoxNzUxMjI5NzQ0fQ.zbSurLTceXis-2Eo0lvrc2J2d4tDUERWmgjtLdnSs4o";
+    const token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMTQ1NTY1ODMyOTc4MDkyMzcxNjYiLCJyb2xlIjoiU1RVREVOVCIsImlhdCI6MTc1MTE0NDc1NSwiZXhwIjoxNzUxMjMxMTU1fQ.lvDlguXkZaiT62p716RxtQI3Du9hSgDRKRVZ2fwTcdI";
 
     let stompClient = null;
 
     function connect() {
-      const wsUrl = `wss://api.tikitaka.o-r.kr/api/lectures/${lectureId}/live`;
+      const wsUrl = `ws://localhost:8080/api/lectures/${lectureId}/live`;
       const socket = new WebSocket(wsUrl);
 
       stompClient = Stomp.over(socket);
