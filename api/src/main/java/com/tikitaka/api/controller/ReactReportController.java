@@ -33,7 +33,8 @@ public class ReactReportController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody ReactRequest request
     ) {
-        ReactResponse response = reactService.reactToContent(userDetails.getUser().getId(), request);
+        CustomUserDetails safeUserDetails = (userDetails != null) ? userDetails : CustomUserDetails.temp();
+        ReactResponse response = reactService.reactToContent(safeUserDetails.getUser().getId(), request);
         return ResponseEntity.ok(response);
     }
 
@@ -46,7 +47,8 @@ public class ReactReportController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody ReportRequest request
     ) {
-        reportService.reportContent(userDetails.getUser().getId(), request);
+        CustomUserDetails safeUserDetails = (userDetails != null) ? userDetails : CustomUserDetails.temp();
+        reportService.reportContent(safeUserDetails.getUser().getId(), request);
         return ResponseEntity.ok("신고 등록 완료");
     }
 }

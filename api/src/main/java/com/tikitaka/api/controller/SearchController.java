@@ -30,7 +30,8 @@ public class SearchController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody SearchRequest request
     ) {
-        SearchResponse response = searchService.search(userDetails.getUser().getId(), request);
+        CustomUserDetails safeUserDetails = (userDetails != null) ? userDetails : CustomUserDetails.temp();
+        SearchResponse response = searchService.search(safeUserDetails.getUser().getId(), request);
         return ResponseEntity.ok(response);
     }
 }

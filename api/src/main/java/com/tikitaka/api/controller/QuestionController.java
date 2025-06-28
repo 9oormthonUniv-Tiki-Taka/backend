@@ -35,7 +35,8 @@ public class QuestionController {
             @RequestParam(required = false, defaultValue = "0") int page,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Page<QuestionListDto> questions = questionService.getQuestions(lectureId, userDetails.getUser().getRole(), status, sort, page);
+        CustomUserDetails safeUserDetails = (userDetails != null) ? userDetails : CustomUserDetails.temp();
+        Page<QuestionListDto> questions = questionService.getQuestions(lectureId, safeUserDetails.getUser().getRole(), status, sort, page);
         return ResponseEntity.ok(questions);
     }
 
@@ -49,7 +50,8 @@ public class QuestionController {
             @PathVariable Long questionId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        QuestionDtos.QuestionDetailResponse response = questionService.getQuestionDetail(lectureId, questionId, userDetails.getUser().getId());
+        CustomUserDetails safeUserDetails = (userDetails != null) ? userDetails : CustomUserDetails.temp();
+        QuestionDtos.QuestionDetailResponse response = questionService.getQuestionDetail(lectureId, questionId, safeUserDetails.getUser().getId());
         return ResponseEntity.ok(response);
     }
 
@@ -78,7 +80,8 @@ public class QuestionController {
             @PathVariable Long commentId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        questionService.deleteComment(lectureId, questionId, commentId, userDetails.getUser().getId());
+        CustomUserDetails safeUserDetails = (userDetails != null) ? userDetails : CustomUserDetails.temp();
+        questionService.deleteComment(lectureId, questionId, commentId, safeUserDetails.getUser().getId());
         return ResponseEntity.ok("댓글 삭제 성공");
     }
 

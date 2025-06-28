@@ -33,7 +33,8 @@ public class LectureController {
     public LectureListResponse getLectureList(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(defaultValue = "recent") String sort) {
-        return lectureService.getLectureList(userDetails.getUser(), sort);
+        CustomUserDetails safeUserDetails = (userDetails != null) ? userDetails : CustomUserDetails.temp();
+        return lectureService.getLectureList(safeUserDetails.getUser(), sort);
     }
 
     @Operation(
@@ -45,7 +46,8 @@ public class LectureController {
             @PathVariable Long lectureId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        User currentUser = userDetails.getUser();
+        CustomUserDetails safeUserDetails = (userDetails != null) ? userDetails : CustomUserDetails.temp();
+        User currentUser = safeUserDetails.getUser();
         List<QuestionDetailDto> questions = lectureService.getLiveQuestions(lectureId, currentUser);
         return Map.of("questions", questions);
     }

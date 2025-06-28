@@ -31,7 +31,8 @@ public class UserController {
     )
     @GetMapping
     public ResponseEntity<UserInfoResponse> getMe(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        UserInfoResponse response = userService.getMyInfo(userDetails.getUser().getId());
+        CustomUserDetails safeUserDetails = (userDetails != null) ? userDetails : CustomUserDetails.temp();
+        UserInfoResponse response = userService.getMyInfo(safeUserDetails.getUser().getId());
         return ResponseEntity.ok(response);
     }
 
@@ -44,8 +45,9 @@ public class UserController {
                                                        @RequestParam(defaultValue = "all") String type,
                                                        @RequestParam(defaultValue = "0") int page,
                                                        @RequestParam(defaultValue = "10") int size) {
+        CustomUserDetails safeUserDetails = (userDetails != null) ? userDetails : CustomUserDetails.temp();
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        UserPointResponse response = userService.getMyPoints(userDetails.getUser().getId(), type, pageable);
+        UserPointResponse response = userService.getMyPoints(safeUserDetails.getUser().getId(), type, pageable);
         return ResponseEntity.ok(response);
     }
 
@@ -57,8 +59,9 @@ public class UserController {
     public ResponseEntity<UserQuestionResponse> getMyQuestions(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                                @RequestParam(defaultValue = "0") int page,
                                                                @RequestParam(defaultValue = "10") int size) {
+        CustomUserDetails safeUserDetails = (userDetails != null) ? userDetails : CustomUserDetails.temp();
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        UserQuestionResponse response = userService.getMyQuestions(userDetails.getUser().getId(), pageable);
+        UserQuestionResponse response = userService.getMyQuestions(safeUserDetails.getUser().getId(), pageable);
         return ResponseEntity.ok(response);
     }
 
@@ -71,8 +74,9 @@ public class UserController {
                                                          @RequestParam(defaultValue = "like") String type,
                                                          @RequestParam(defaultValue = "0") int page,
                                                          @RequestParam(defaultValue = "10") int size) {
+        CustomUserDetails safeUserDetails = (userDetails != null) ? userDetails : CustomUserDetails.temp();
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        UserReactResponse response = userService.getMyReacts(userDetails.getUser().getId(), type, pageable);
+        UserReactResponse response = userService.getMyReacts(safeUserDetails.getUser().getId(), type, pageable);
         return ResponseEntity.ok(response);
     }
 
@@ -84,8 +88,9 @@ public class UserController {
     public ResponseEntity<UserReportResponse> getMyReports(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                            @RequestParam(defaultValue = "0") int page,
                                                            @RequestParam(defaultValue = "10") int size) {
+        CustomUserDetails safeUserDetails = (userDetails != null) ? userDetails : CustomUserDetails.temp();
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        UserReportResponse response = userService.getMyReports(userDetails.getUser().getId(), pageable);
+        UserReportResponse response = userService.getMyReports(safeUserDetails.getUser().getId(), pageable);
         return ResponseEntity.ok(response);
     }
 }

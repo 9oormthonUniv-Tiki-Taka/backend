@@ -1,6 +1,8 @@
 package com.tikitaka.api.jwt;
 
 import com.tikitaka.api.domain.user.User;
+import com.tikitaka.api.domain.user.UserRole;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -45,5 +47,15 @@ public class CustomUserDetails implements UserDetails {
 
     public User getUser() {
         return this.user;
+    }
+
+    public static CustomUserDetails temp() {
+        User tempUser = User.builder()
+                .Id(-1L)
+                .email("guest@tikitaka.com")
+                .name("게스트")
+                .role(UserRole.STUDENT)
+                .build();
+        return new CustomUserDetails(tempUser);
     }
 }
