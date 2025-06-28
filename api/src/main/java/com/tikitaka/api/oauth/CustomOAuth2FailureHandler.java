@@ -15,7 +15,7 @@ import java.io.IOException;
 @Component
 public class CustomOAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
-    private final String redirectUrl = "http://localhost:5173/oauth/callback";
+    private final String redirectUrl = "https://www.tikitaka.o-r.kr/oauth/callback";
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request,

@@ -22,7 +22,7 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class CustomOAuth2SuccessHandler  implements AuthenticationSuccessHandler {
 
-    private final String redirectUrl = "http://localhost:5173/oauth/callback";
+    private final String redirectUrl = "https://www.tikitaka.o-r.kr/oauth/callback";
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
