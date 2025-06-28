@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CORS 테스트</title>
+</head>
+<body>
+  <h1>CORS 테스트 (localhost:8080)</h1>
+  <button id="testCors">CORS 요청 보내기</button>
+  <pre id="output"></pre>
+
+  <script>
+    document.getElementById('testCors').addEventListener('click', () => {
+      fetch('https://api.tikitaka.o-r.kr/api/user/me', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        // credentials: 'include' // 쿠키 포함 요청 시 사용
+      })
+      .then(response => {
+        document.getElementById('output').textContent =
+          `성공적으로 응답 받음\n상태 코드: ${response.status}`;
+      })
+      .catch(error => {
+        document.getElementById('output').textContent =
+          `CORS 에러 또는 네트워크 실패\n에러: ${error}`;
+      });
+    });
+  </script>
+</body>
+</html>

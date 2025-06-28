@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket STOMP 실시간 질문 테스트</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+<h2>🎓 WebSocket STOMP - 실시간 질문 테스트</h2>
+
+<button onclick="connect()">1. 연결하기</button>
+<button onclick="sendQuestion()">2. 질문 전송</button>
+
+<pre id="log"></pre>
+
+<script>
+    let stompClient;
+    const userId = 1;
+    const lectureId = 1;
+
+    function log(message) {
+      document.getElementById("log").innerText += message + "\n";
+    }
+
+    function connect() {
+      const socket = new SockJS("http://localhost:8080/ws");
+      stompClient = Stomp.over(socket);
+      stompClient.connect({ "userId": userId }, function () {
+        log("✅ 연결됨");
+
+        stompClient.subscribe(`/topic/api/lectures/${lectureId}/live`, function (message) {
+          const body = JSON.parse(message.body);
+
+          // 메시지에 저장된 질문 정보 보기
+          log("📩 수신 메시지:");
+          log(JSON.stringify(body, null, 2)); // 들여쓰기 해서 보기 좋게
+        });
+      });
+    }
+
+    function sendQuestion() {
+      const payload = {
+        type: "question",
+        request: {
+          lectureId: lectureId,
+          content: "💬 테스트 질문입니다!"
+        }
+      };
+
+      stompClient.send(`/app/api/lectures/${lectureId}/live`, {}, JSON.stringify(payload));
+      log("📤 질문 전송: " + JSON.stringify(payload));
+    }
+</script>
+</body>
+</html>
+
