@@ -45,7 +45,7 @@ jobs:
         run: |
           scp -i key.pem -o StrictHostKeyChecking=no \
             api/build/libs/*.jar \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/app.jar
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/app-dev.jar
 
       - name: 🧨 SSH into EC2 and restart application
         env:
@@ -74,8 +74,8 @@ jobs:
               export GPT_KEY="${GPT_KEY}"
               export JWT_SECRET_KEY="${JWT_SECRET_KEY}"
 
-              nohup java -jar /home/${{ secrets.SSH_USER }}/app.jar \
-                --spring.profiles.active=h2 > app.log 2>&1 &
+              nohup java -jar /home/${{ secrets.SSH_USER }}/app-dev.jar/api-0.0.1-SNAPSHOT.jar \
+                --spring.profiles.active=h2 > app-dev.log 2>&1 &
 
               echo "✅ Deployed with H2!"
           EOF
