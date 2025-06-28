@@ -6,9 +6,11 @@ import com.tikitaka.api.service.socket.SocketService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Map;
+
 import org.springframework.messaging.handler.annotation.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 
 
@@ -23,10 +25,15 @@ public class SocketController {
     @MessageMapping("lectures/{lectureId}/live")
     public void handleSocket(@DestinationVariable Long lectureId,
                              @Payload LiveSocketRequest message,
-                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+                             @Header("simpSessionAttributes") Map<String, Object> sessionAttributes) {
 
-        CustomUserDetails safeUserDetails = (userDetails != null) ? userDetails : CustomUserDetails.temp();
-        socketService.handleLiveSocket(lectureId, message, safeUserDetails.getUser().getId());
+        CustomUserDetails userDetails = (CustomUserDetails) sessionAttributes.get("user");
+
+        if (userDetails == null) {
+            log.warn("🔥 WebSocket 인증되지 않은 요청입니다.");
+            return;
+        }
+        socketService.handleLiveSocket(lectureId, message, userDetails.getUser().getId());
 
         messagingTemplate.convertAndSend(
                 "/topic/lectures/" + lectureId + "/live", message

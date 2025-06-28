@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Lecture Live STOMP Test (wss)</title>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+  <h2>📡 STOMP Test for Lecture (via WebSocket)</h2>
+  <button onclick="connect()">Connect</button>
+  <button onclick="send()">Send Message</button>
+  <div id="output"></div>
+
+  <script>
+    const lectureId = 4;
+    const token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMTQ1NTY1ODMyOTc4MDkyMzcxNjYiLCJyb2xlIjoiU1RVREVOVCIsImlhdCI6MTc1MTE0MzM0NCwiZXhwIjoxNzUxMjI5NzQ0fQ.zbSurLTceXis-2Eo0lvrc2J2d4tDUERWmgjtLdnSs4o";
+
+    let stompClient = null;
+
+    function connect() {
+      const wsUrl = `wss://api.tikitaka.o-r.kr/api/lectures/${lectureId}/live`;
+      const socket = new WebSocket(wsUrl);
+
+      stompClient = Stomp.over(socket);
+
+      stompClient.connect(
+        { Authorization: token },
+        frame => {
+          console.log('Connected:', frame);
+          document.getElementById('output').innerHTML += `<p>✅ 연결됨</p>`;
+
+          stompClient.subscribe(`/topic/lectures/${lectureId}/live`, msg => {
+            const body = JSON.parse(msg.body);
+            document.getElementById('output').innerHTML += `<p>📩 수신: ${JSON.stringify(body)}</p>`;
+          });
+        },
+        error => {
+          console.error('STOMP connection error:', error);
+          document.getElementById('output').innerHTML += `<p style="color:red;">❌ 연결 실패</p>`;
+        }
+      );
+    }
+
+    function send() {
+      const message = {
+        type: "question",
+        content: "실시간 질문 테스트입니다!",
+        timestamp: new Date().toISOString()
+      };
+
+      stompClient.send(`/app/lectures/${lectureId}/live`, {}, JSON.stringify(message));
+      document.getElementById('output').innerHTML += `<p>🚀 전송: ${JSON.stringify(message)}</p>`;
+    }
+  </script>
+</body>
+</html>
