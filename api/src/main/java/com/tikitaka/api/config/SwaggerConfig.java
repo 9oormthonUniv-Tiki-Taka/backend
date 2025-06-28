@@ -60,7 +60,7 @@ public class SwaggerConfig {
     public GroupedOpenApi devApi() {
         return GroupedOpenApi.builder()
                 .group("dev")
-                .pathsToMatch("/api/dev/**")
+                .pathsToMatch("/api/dev/**", "/auth/**")
                 .build();
     }
 }
