@@ -61,7 +61,7 @@ jobs:
           ssh -i key.pem -o StrictHostKeyChecking=no \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << EOF
               echo "🛑 Killing existing Java process (if any)..."
-              pkill -f 'java' || true
+              ps aux | grep 'app-dev.jar' | grep -v grep | awk '{print $2}' | xargs kill
 
               echo "🚀 Starting new app with environment variables..."
 
